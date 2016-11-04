@@ -5,15 +5,22 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.None.class, property = "id")
 public class Tweet {
 
 	@Id
@@ -28,14 +35,25 @@ public class Tweet {
 
 	@ManyToOne
 	@JoinColumn(nullable = false, updatable = false)
-	private User author;
-
-	@OneToOne
-	@JoinColumn(nullable = false, updatable = false)
-	private Credential credential;
+	private Profile author;
 
 	@ManyToMany
 	private List<Tag> tags;
+
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+	@JsonIdentityReference(alwaysAsId = true)
+	private Tweet repostof;
+
+	@ManyToOne
+	private Tweet replyto;
+
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "repostof")
+	@JsonIgnore
+	private List<Tweet> reposts;
+
+	@OneToMany(mappedBy = "replyto")
+	@JsonIgnore
+	private List<Tweet> replies;
 
 	public Long getId() {
 		return id;
@@ -69,19 +87,44 @@ public class Tweet {
 		this.posted = posted;
 	}
 
-	public void setCredential(Credential credential) {
-		this.credential = credential;
+	public List<Tweet> getReposts() {
+		return reposts;
 	}
 
-	public Credential getCredential() {
-		return credential;
+	public void setReposts(List<Tweet> reposts) {
+		this.reposts = reposts;
 	}
 
-	public User getAuthor() {
+	public List<Tweet> getReplies() {
+		return replies;
+	}
+
+	public void setReplies(List<Tweet> replies) {
+		this.replies = replies;
+	}
+
+	public Profile getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(User user) {
-		this.author = user;
+	public void setAuthor(Profile author) {
+		this.author = author;
 	}
+
+	public Tweet getRepostof() {
+		return repostof;
+	}
+
+	public void setRepostof(Tweet repostof) {
+		this.repostof = repostof;
+	}
+
+	public Tweet getReplyto() {
+		return replyto;
+	}
+
+	public void setReplyto(Tweet replyto) {
+		this.replyto = replyto;
+	}
+
 }

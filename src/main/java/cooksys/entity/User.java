@@ -1,7 +1,6 @@
 package cooksys.entity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -10,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,7 +23,6 @@ public class User {
 	private Long id;
 
 	@OneToOne
-	@JsonIgnore
 	private Credential credential;
 
 	@OneToOne
@@ -33,10 +30,6 @@ public class User {
 
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
 	private Date joined;
-
-	@OneToMany
-	@JsonIgnore
-	private List<Tweet> tweets;
 
 	@ManyToMany
 	@JsonIgnore
@@ -76,14 +69,6 @@ public class User {
 
 	public void setJoined(Date joined) {
 		this.joined = joined;
-	}
-
-	public List<Tweet> getTweets() {
-		return tweets;
-	}
-
-	public void setTweets(List<Tweet> tweets) {
-		this.tweets = tweets;
 	}
 
 	public Set<User> getFollowing() {

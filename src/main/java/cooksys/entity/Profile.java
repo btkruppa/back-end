@@ -1,10 +1,15 @@
 package cooksys.entity;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Profile {
@@ -23,6 +28,10 @@ public class Profile {
 	private String email;
 
 	private String phoneNumber;
+
+	@OneToMany
+	@JsonIgnore
+	private List<Tweet> tweets;
 
 	public Long getId() {
 		return id;
@@ -71,4 +80,13 @@ public class Profile {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+	public List<Tweet> getTweets() {
+		return tweets;
+	}
+
+	public void setTweets(List<Tweet> tweets) {
+		this.tweets = tweets;
+	}
+	
 }

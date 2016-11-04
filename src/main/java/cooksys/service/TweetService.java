@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import cooksys.entity.Credential;
@@ -40,12 +41,10 @@ public class TweetService {
 
 	@Transactional
 	public void add(Tweet tweet) {
-		System.out.println("here");
-		System.out.println(tweet.getCredential().getUsername());
 		if (isCredentialValid(tweet.getCredential())) {
 			tweet.setCredential(credentialRepo.findByUsernameAndPassword(tweet.getCredential().getUsername(),
 					tweet.getCredential().getPassword()));
-			tweet.setAuthor(userRepo.findByCredentialUsername(tweet.getCredential().getUsername()));
+			tweet.setAuthor(userRepo.findByCredentialUsername(tweet.getCredential().getUsername()).getProfile());
 			tweetRepo.saveAndFlush(tweet);
 		}
 	}
@@ -57,5 +56,33 @@ public class TweetService {
 	private boolean isCredentialValid(Credential credential) {
 		return (credentialRepo.findByUsernameAndPassword(credential.getUsername(), credential.getPassword()) == null)
 				? false : true;
+	}
+
+	@Transactional
+	public void repost(Long id, Tweet tweet) {
+		if (isCredentialValid(tweet.getCredential())) {
+			Tweet repostedTweet = tweetRepo.getOne(id);
+			if (repostedTweet != null) {
+				tweet.setCredential(credentialRepo.findByUsernameAndPassword(tweet.getCredential().getUsername(),
+						tweet.getCredential().getPassword()));
+				tweet.setAuthor(userRepo.findByCredentialUsername(tweet.getCredential().getUsername()).getProfile());
+				tweet.setRepostof(repostedTweet);
+				repostedTweet.getReposts().add(tweetRepo.saveAndFlush(tweet));
+				tweetRepo.save(repostedTweet);
+				System.out.println(repostedTweet.getReposts().size());
+			}
+		}
+	}
+
+	public List<Tweet> getReposts(Long id) {
+		System.out.println(tweetRepo.getOne(id).getReposts().size());
+		Tweet target = tweetRepo.getOne(id);
+
+		for (Tweet t : target.getReposts()) {
+			Hibernate.initialize(t);
+			System.out.println(t.getClass());
+		}
+
+		return target.getReposts();
 	}
 }

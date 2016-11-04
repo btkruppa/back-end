@@ -2,6 +2,7 @@ package cooksys.controller;
 
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,4 +44,19 @@ public class TweetsController {
 	public void addTags(@PathVariable Tweet tweet, @PathVariable Tag Tag) {
 		tweetService.addTags(tweet, Tag);
 	}
+
+	@PostMapping("/{id}/repost")
+	public void repost(@PathVariable Long id, @RequestBody Tweet tweet) {
+		tweetService.repost(id, tweet);
+	}
+
+	@GetMapping("/{id}/reposts")
+	public List<Tweet> getReposts(@PathVariable Long id) {
+		List<Tweet> reposts = tweetService.getReposts(id);
+		
+		reposts.forEach(tweet -> System.out.println(tweet.getClass()));
+		
+		return reposts;
+	}
+
 }

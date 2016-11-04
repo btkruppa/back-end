@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cooksys.entity.Credential;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
+import cooksys.projections.UserProjection;
 import cooksys.service.UserService;
 
 @RestController
@@ -32,7 +33,7 @@ public class UserController {
 	}
 
 	@GetMapping("/@{username}")
-	public User getUserByName(@PathVariable String username) {
+	public UserProjection getUserByName(@PathVariable String username) {
 		return userService.getByUsername(username);
 	}
 
@@ -57,7 +58,7 @@ public class UserController {
 	}
 
 	@PatchMapping("/@{username}")
-	public User patch(@PathVariable String username, @RequestBody User user) {
+	public UserProjection patch(@PathVariable String username, @RequestBody User user) {
 		if (user.getCredential().getUsername().equals(username)) {
 			return userService.update(user);
 		} else {
