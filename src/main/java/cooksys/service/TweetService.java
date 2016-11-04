@@ -14,6 +14,7 @@ import cooksys.repository.CredentialRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.TweetRepo;
 import cooksys.repository.UserRepo;
+import cooksys.request_models.TweetCreationRequestModel;
 
 @Service
 public class TweetService {
@@ -40,11 +41,11 @@ public class TweetService {
 	}
 
 	@Transactional
-	public void add(Tweet tweet) {
-		if (isCredentialValid(tweet.getCredential())) {
-			tweet.setCredential(credentialRepo.findByUsernameAndPassword(tweet.getCredential().getUsername(),
-					tweet.getCredential().getPassword()));
-			tweet.setAuthor(userRepo.findByCredentialUsername(tweet.getCredential().getUsername()).getProfile());
+	public void add(TweetCreationRequestModel tweetRequest) {
+		if (isCredentialValid(tweetRequest.getCredential())) {
+			Tweet tweet = new Tweet();
+			tweet.setAuthor(userRepo.findByCredentialUsername(tweetRequest.getCredential().getUsername()).getProfile());
+			tweet.setContent(tweetRequest.getContent());
 			tweetRepo.saveAndFlush(tweet);
 		}
 	}
@@ -59,14 +60,15 @@ public class TweetService {
 	}
 
 	@Transactional
-	public void repost(Long id, Tweet tweet) {
-		if (isCredentialValid(tweet.getCredential())) {
+	public void repost(Long id, TweetCreationRequestModel tweetCreationRequestModel) {
+		if (isCredentialValid(tweetCreationRequestModel.getCredential())) {
 			Tweet repostedTweet = tweetRepo.getOne(id);
 			if (repostedTweet != null) {
-				tweet.setCredential(credentialRepo.findByUsernameAndPassword(tweet.getCredential().getUsername(),
-						tweet.getCredential().getPassword()));
-				tweet.setAuthor(userRepo.findByCredentialUsername(tweet.getCredential().getUsername()).getProfile());
+				Tweet tweet = new Tweet();
+				tweet.setAuthor(userRepo.findByCredentialUsername(tweetCreationRequestModel.getCredential().getUsername())
+						.getProfile());
 				tweet.setRepostof(repostedTweet);
+				tweet.setContent(tweetCreationRequestModel.getContent());
 				repostedTweet.getReposts().add(tweetRepo.saveAndFlush(tweet));
 				tweetRepo.save(repostedTweet);
 				System.out.println(repostedTweet.getReposts().size());

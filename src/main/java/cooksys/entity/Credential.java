@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Credential {
@@ -18,6 +19,9 @@ public class Credential {
 
 	@Column(nullable = false)
 	private String password;
+
+	@OneToOne
+	private User user;
 
 	public Long getId() {
 		return id;
@@ -43,4 +47,11 @@ public class Credential {
 		this.password = password;
 	}
 
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }

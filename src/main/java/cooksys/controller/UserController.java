@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cooksys.entity.Credential;
+import cooksys.entity.Profile;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
 import cooksys.projections.UserProjection;
@@ -28,22 +29,22 @@ public class UserController {
 	}
 
 	@GetMapping
-	public List<User> get() {
+	public List<Profile> get() {
 		return userService.get();
 	}
 
 	@GetMapping("/@{username}")
-	public UserProjection getUserByName(@PathVariable String username) {
+	public User getUserByName(@PathVariable String username) {
 		return userService.getByUsername(username);
 	}
 
 	@GetMapping("/@{username}/following")
-	public Set<User> getUserFollows(@PathVariable String username) {
+	public Set<Profile> getUserFollows(@PathVariable String username) {
 		return userService.getUserFollows(username);
 	}
 
 	@GetMapping("/@{username}/followers")
-	public Set<User> getUserFollowers(@PathVariable String username) {
+	public Set<Profile> getUserFollowers(@PathVariable String username) {
 		return userService.getUserFollowers(username);
 	}
 

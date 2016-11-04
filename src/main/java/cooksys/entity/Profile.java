@@ -1,12 +1,14 @@
 package cooksys.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,6 +34,14 @@ public class Profile {
 	@OneToMany
 	@JsonIgnore
 	private List<Tweet> tweets;
+
+	@ManyToMany
+	@JsonIgnore
+	private Set<Profile> following;
+
+	@ManyToMany(mappedBy = "following")
+	@JsonIgnore
+	private Set<Profile> followers;
 
 	public Long getId() {
 		return id;
@@ -88,5 +98,22 @@ public class Profile {
 	public void setTweets(List<Tweet> tweets) {
 		this.tweets = tweets;
 	}
+
+	public Set<Profile> getFollowing() {
+		return following;
+	}
+
+	public void setFollowing(Set<Profile> following) {
+		this.following = following;
+	}
+
+	public Set<Profile> getFollowers() {
+		return followers;
+	}
+
+	public void setFollowers(Set<Profile> followers) {
+		this.followers = followers;
+	}
+
 	
 }

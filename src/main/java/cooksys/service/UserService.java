@@ -33,7 +33,7 @@ public class UserService {
 		this.userProjectionRepo = userProjectionRepo;
 	}
 
-	public UserProjection getByUsername(String username) {
+	public User getByUsername(String username) {
 		return userProjectionRepo.findByCredentialUsername(username);
 	}
 
@@ -89,15 +89,15 @@ public class UserService {
 		return null;
 	}
 
-	public List<User> get() {
-		return userRepo.findAll();
+	public List<Profile> get() {
+		return profileRepo.findAll();
 	}
 
 	@Transactional
 	public boolean follow(String username, Credential credential) {
 		if (isCredentialValid(credential)) {
 			User ourUser = userRepo.findByCredentialUsername(credential.getUsername());
-			ourUser.getFollowing().add(userRepo.findByCredentialUsername(username));
+			ourUser.getProfile().getFollowing().add(userRepo.findByCredentialUsername(username).getProfile());
 			userRepo.save(ourUser);
 			return true;
 		} else {
@@ -105,17 +105,17 @@ public class UserService {
 		}
 	}
 
-	public Set<User> getUserFollows(String username) {
+	public Set<Profile> getUserFollows(String username) {
 		if (getByUsername(username) != null) {
-			Set<User> followProjection = userRepo.findByCredentialUsername(username).getFollowing();
+			Set<Profile> followProjection = userRepo.findByCredentialUsername(username).getProfile().getFollowing();
 			return followProjection;
 		}
 		return null;
 	}
 
-	public Set<User> getUserFollowers(String username) {
+	public Set<Profile> getUserFollowers(String username) {
 		if (getByUsername(username) != null) {
-			return userRepo.findByCredentialUsername(username).getFollowers();
+			return userRepo.findByCredentialUsername(username).getProfile().getFollowers();
 		}
 		return null;
 	}
