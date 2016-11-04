@@ -6,4 +6,5 @@ import cooksys.entity.Profile;
 
 public interface ProfileRepo extends JpaRepository<Profile, Long> {
 
+	Profile findByEmailIgnoringCase(String email);
 }

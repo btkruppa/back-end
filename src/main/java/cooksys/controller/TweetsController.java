@@ -1,5 +1,7 @@
 package cooksys.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,11 @@ public class TweetsController {
 
 	public TweetsController(TweetService service) {
 		this.tweetService = service;
+	}
+
+	@GetMapping
+	public List<Tweet> get() {
+		return tweetService.getAll();
 	}
 
 	@GetMapping("/{tweet}")

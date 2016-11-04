@@ -1,7 +1,5 @@
 package cooksys.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +13,9 @@ public class Profile {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(unique = true, nullable = false, updatable = false)
+	private String username;
+
 	private String firstName;
 	private String lastName;
 
@@ -22,9 +23,6 @@ public class Profile {
 	private String email;
 
 	private String phoneNumber;
-
-	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
-	private Date joined;
 
 	public Long getId() {
 		return id;
@@ -66,11 +64,11 @@ public class Profile {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public Date getJoined() {
-		return joined;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setJoined(Date joined) {
-		this.joined = joined;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }
