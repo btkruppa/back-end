@@ -28,10 +28,6 @@ public class Profile {
 
 	private String phoneNumber;
 
-	@OneToMany
-	@JsonIgnore
-	private List<Tweet> tweets;
-
 	public Long getId() {
 		return id;
 	}
@@ -70,13 +66,5 @@ public class Profile {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
-	}
-
-	public List<Tweet> getTweets() {
-		return tweets;
-	}
-
-	public void setTweets(List<Tweet> tweets) {
-		this.tweets = tweets;
 	}
 }

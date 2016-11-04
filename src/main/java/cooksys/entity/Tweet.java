@@ -35,7 +35,7 @@ public class Tweet {
 
 	@ManyToOne
 	@JoinColumn(nullable = false, updatable = false)
-	private Profile author;
+	private User author;
 
 	@ManyToMany
 	private List<Tag> tags;
@@ -103,11 +103,11 @@ public class Tweet {
 		this.replies = replies;
 	}
 
-	public Profile getAuthor() {
+	public User getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(Profile author) {
+	public void setAuthor(User author) {
 		this.author = author;
 	}
 

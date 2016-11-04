@@ -13,7 +13,6 @@ import cooksys.entity.Tweet;
 import cooksys.entity.User;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.ProfileRepo;
-import cooksys.repository.UserProjectionRepo;
 import cooksys.repository.UserRepo;
 import cooksys.request_models.CreateProfileRequestModel;
 
@@ -23,14 +22,11 @@ public class UserService {
 	private CredentialRepo credentialRepo;
 	private UserRepo userRepo;
 	private ProfileRepo profileRepo;
-	private UserProjectionRepo userProjectionRepo;
 
-	public UserService(UserRepo userRepo, CredentialRepo credentialRepo, ProfileRepo profileRepo,
-			UserProjectionRepo userProjectionRepo) {
+	public UserService(UserRepo userRepo, CredentialRepo credentialRepo, ProfileRepo profileRepo) {
 		this.userRepo = userRepo;
 		this.credentialRepo = credentialRepo;
 		this.profileRepo = profileRepo;
-		this.userProjectionRepo = userProjectionRepo;
 	}
 
 	public User getByUsername(String username) {
@@ -121,7 +117,7 @@ public class UserService {
 
 	public List<Tweet> getUserFeed(String username) {
 		if (getByUsername(username) != null) {
-			return userRepo.findByUsername(username).getProfile().getTweets();
+			return userRepo.findByUsername(username).getTweets();
 		}
 		return null;
 	}

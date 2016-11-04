@@ -1,6 +1,9 @@
 package cooksys.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.transaction.Transactional;
 
@@ -44,8 +47,35 @@ public class TweetService {
 	public void add(TweetCreationRequestModel tweetRequest) {
 		if (isCredentialValid(tweetRequest.getCredential())) {
 			Tweet tweet = new Tweet();
-			tweet.setAuthor(userRepo.findByUsername(tweetRequest.getCredential().getUsername()).getProfile());
 			tweet.setContent(tweetRequest.getContent());
+			tweet.setAuthor(userRepo.findByUsername(tweetRequest.getCredential().getUsername()));
+
+			// for tags and users
+			// ( #)\w+([^\s]+)
+			String content = tweetRequest.getContent();
+			String pattern = "( #)\\w+([^\\s]+)";
+
+			// Create a Pattern object
+			Pattern r = Pattern.compile(pattern);
+
+			// Now create matcher object.
+			Matcher m = r.matcher(content);
+			Tag tag;
+			List<Tag> tags = new ArrayList<Tag>();
+			while (m.find()) {
+				System.out.println("Found value: " + m.group(0));
+				tag = tagRepo.findByLabel(m.group(0).substring(1));
+				if (tag == null) {
+					System.out.println("here");
+					tag = new Tag();
+					tag.setLabel(m.group(0).substring(1));
+				}
+				System.out.println(tag.getLabel());
+				tag = tagRepo.saveAndFlush(tag);
+				System.out.println(tag.getId());
+				tags.add(tag);
+			}
+			tweet.setTags(tags);
 			tweetRepo.saveAndFlush(tweet);
 		}
 	}
@@ -65,13 +95,11 @@ public class TweetService {
 			Tweet repostedTweet = tweetRepo.getOne(id);
 			if (repostedTweet != null) {
 				Tweet tweet = new Tweet();
-				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername())
-						.getProfile());
+				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername()));
 				tweet.setRepostof(repostedTweet);
 				tweet.setContent(tweetCreationRequestModel.getContent());
-				repostedTweet.getReposts().add(tweetRepo.saveAndFlush(tweet));
-				tweetRepo.save(repostedTweet);
-				System.out.println(repostedTweet.getReposts().size());
+				tweet = tweetRepo.saveAndFlush(tweet);
+				repostedTweet.getReposts().add(tweet);
 			}
 		}
 	}

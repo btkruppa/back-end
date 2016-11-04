@@ -1,6 +1,7 @@
 package cooksys.entity;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,6 +40,10 @@ public class User {
 	@ManyToMany(mappedBy = "following")
 	@JsonIgnore
 	private Set<User> followers;
+
+	@OneToMany(mappedBy = "author")
+	@JsonIgnore
+	private List<Tweet> tweets;
 
 	public Long getId() {
 		return id;
@@ -85,5 +91,13 @@ public class User {
 
 	public void setFollowers(Set<User> followers) {
 		this.followers = followers;
+	}
+
+	public List<Tweet> getTweets() {
+		return tweets;
+	}
+
+	public void setTweets(List<Tweet> tweets) {
+		this.tweets = tweets;
 	}
 }
