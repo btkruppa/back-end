@@ -20,9 +20,6 @@ public class Profile {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(unique = true, nullable = false, updatable = false)
-	private String username;
-
 	private String firstName;
 	private String lastName;
 
@@ -34,14 +31,6 @@ public class Profile {
 	@OneToMany
 	@JsonIgnore
 	private List<Tweet> tweets;
-
-	@ManyToMany
-	@JsonIgnore
-	private Set<Profile> following;
-
-	@ManyToMany(mappedBy = "following")
-	@JsonIgnore
-	private Set<Profile> followers;
 
 	public Long getId() {
 		return id;
@@ -83,14 +72,6 @@ public class Profile {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
 	public List<Tweet> getTweets() {
 		return tweets;
 	}
@@ -98,22 +79,4 @@ public class Profile {
 	public void setTweets(List<Tweet> tweets) {
 		this.tweets = tweets;
 	}
-
-	public Set<Profile> getFollowing() {
-		return following;
-	}
-
-	public void setFollowing(Set<Profile> following) {
-		this.following = following;
-	}
-
-	public Set<Profile> getFollowers() {
-		return followers;
-	}
-
-	public void setFollowers(Set<Profile> followers) {
-		this.followers = followers;
-	}
-
-	
 }

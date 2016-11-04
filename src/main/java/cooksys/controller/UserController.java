@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cooksys.entity.Credential;
-import cooksys.entity.Profile;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
-import cooksys.projections.UserProjection;
+import cooksys.request_models.CreateProfileRequestModel;
 import cooksys.service.UserService;
 
 @RestController
@@ -29,7 +28,7 @@ public class UserController {
 	}
 
 	@GetMapping
-	public List<Profile> get() {
+	public List<User> get() {
 		return userService.get();
 	}
 
@@ -39,12 +38,12 @@ public class UserController {
 	}
 
 	@GetMapping("/@{username}/following")
-	public Set<Profile> getUserFollows(@PathVariable String username) {
+	public Set<User> getUserFollows(@PathVariable String username) {
 		return userService.getUserFollows(username);
 	}
 
 	@GetMapping("/@{username}/followers")
-	public Set<Profile> getUserFollowers(@PathVariable String username) {
+	public Set<User> getUserFollowers(@PathVariable String username) {
 		return userService.getUserFollowers(username);
 	}
 
@@ -54,14 +53,14 @@ public class UserController {
 	}
 
 	@PostMapping
-	public void add(@RequestBody User user) {
-		userService.add(user);
+	public void add(@RequestBody CreateProfileRequestModel createProfileRequestModel) {
+		userService.add(createProfileRequestModel);
 	}
 
 	@PatchMapping("/@{username}")
-	public UserProjection patch(@PathVariable String username, @RequestBody User user) {
-		if (user.getCredential().getUsername().equals(username)) {
-			return userService.update(user);
+	public User patch(@PathVariable String username, @RequestBody CreateProfileRequestModel createProfileRequestModel) {
+		if (createProfileRequestModel.getCredential().getUsername().equals(username)) {
+			return userService.update(createProfileRequestModel);
 		} else {
 			throw new Error("No username found");
 		}

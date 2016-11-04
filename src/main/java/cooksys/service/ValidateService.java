@@ -1,10 +1,7 @@
 package cooksys.service;
 
-import javax.transaction.Transactional;
-
 import org.springframework.stereotype.Service;
 
-import cooksys.entity.User;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.ProfileRepo;
 import cooksys.repository.UserRepo;
@@ -23,13 +20,6 @@ public class ValidateService {
 	}
 
 	public boolean doesUserExist(String username) {
-		return (userRepo.findByCredentialUsername(username) == null) ? false : true;
-	}
-
-	@Transactional
-	public void add(User user) {
-		credentialRepo.saveAndFlush(user.getCredential());
-		profileRepo.saveAndFlush(user.getProfile());
-		userRepo.saveAndFlush(user);
+		return (userRepo.findByUsername(username) == null) ? false : true;
 	}
 }

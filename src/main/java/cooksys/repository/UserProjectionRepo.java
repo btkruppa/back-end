@@ -6,5 +6,5 @@ import cooksys.entity.User;
 import cooksys.projections.UserProjection;
 
 public interface UserProjectionRepo extends JpaRepository<User, Long> {
-	UserProjection findByCredentialUsername(String name);
+	UserProjection findByUsername(String name);
 }

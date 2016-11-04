@@ -44,7 +44,7 @@ public class TweetService {
 	public void add(TweetCreationRequestModel tweetRequest) {
 		if (isCredentialValid(tweetRequest.getCredential())) {
 			Tweet tweet = new Tweet();
-			tweet.setAuthor(userRepo.findByCredentialUsername(tweetRequest.getCredential().getUsername()).getProfile());
+			tweet.setAuthor(userRepo.findByUsername(tweetRequest.getCredential().getUsername()).getProfile());
 			tweet.setContent(tweetRequest.getContent());
 			tweetRepo.saveAndFlush(tweet);
 		}
@@ -65,7 +65,7 @@ public class TweetService {
 			Tweet repostedTweet = tweetRepo.getOne(id);
 			if (repostedTweet != null) {
 				Tweet tweet = new Tweet();
-				tweet.setAuthor(userRepo.findByCredentialUsername(tweetCreationRequestModel.getCredential().getUsername())
+				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername())
 						.getProfile());
 				tweet.setRepostof(repostedTweet);
 				tweet.setContent(tweetCreationRequestModel.getContent());

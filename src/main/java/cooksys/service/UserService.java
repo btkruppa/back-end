@@ -11,11 +11,11 @@ import cooksys.entity.Credential;
 import cooksys.entity.Profile;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
-import cooksys.projections.UserProjection;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.ProfileRepo;
 import cooksys.repository.UserProjectionRepo;
 import cooksys.repository.UserRepo;
+import cooksys.request_models.CreateProfileRequestModel;
 
 @Service
 public class UserService {
@@ -34,7 +34,7 @@ public class UserService {
 	}
 
 	public User getByUsername(String username) {
-		return userProjectionRepo.findByCredentialUsername(username);
+		return userRepo.findByUsername(username);
 	}
 
 	public boolean doesUserExist(String username) {
@@ -51,26 +51,25 @@ public class UserService {
 	}
 
 	@Transactional
-	public void add(User user) {
-		if (!doesUserExist(user.getCredential().getUsername())) {
-			if (!doesProfileExist(user.getProfile().getEmail())) {
-				// set the username in the profile as well as in the credentials
-				// and neither can ever be updated. This is due to a circular
-				// reference that was going on with users following each other
-				user.getProfile().setUsername(user.getCredential().getUsername());
-				credentialRepo.saveAndFlush(user.getCredential());
-				profileRepo.saveAndFlush(user.getProfile());
+	public void add(CreateProfileRequestModel createProfileRequestModel) {
+		if (!doesUserExist(createProfileRequestModel.getCredential().getUsername())) {
+			if (!doesProfileExist(createProfileRequestModel.getProfile().getEmail())) {
+				User user = new User();
+				user.setUsername(createProfileRequestModel.getCredential().getUsername());
+				user.setProfile(createProfileRequestModel.getProfile());
+				credentialRepo.saveAndFlush(createProfileRequestModel.getCredential());
+				profileRepo.saveAndFlush(createProfileRequestModel.getProfile());
 				userRepo.saveAndFlush(user);
 			}
 		}
 	}
 
 	@Transactional
-	public UserProjection update(User user) {
-		if (isCredentialValid(user.getCredential())) {
-			UserProjection oldUser = getByUsername(user.getCredential().getUsername());
+	public User update(CreateProfileRequestModel createProfileRequestModel) {
+		if (isCredentialValid(createProfileRequestModel.getCredential())) {
+			User oldUser = getByUsername(createProfileRequestModel.getCredential().getUsername());
 			Profile oldUserProfile = oldUser.getProfile();
-			Profile userProfile = user.getProfile();
+			Profile userProfile = createProfileRequestModel.getProfile();
 			if (userProfile.getEmail() != null) {
 				oldUserProfile.setEmail(userProfile.getEmail());
 			}
@@ -89,15 +88,15 @@ public class UserService {
 		return null;
 	}
 
-	public List<Profile> get() {
-		return profileRepo.findAll();
+	public List<User> get() {
+		return userRepo.findAll();
 	}
 
 	@Transactional
 	public boolean follow(String username, Credential credential) {
 		if (isCredentialValid(credential)) {
-			User ourUser = userRepo.findByCredentialUsername(credential.getUsername());
-			ourUser.getProfile().getFollowing().add(userRepo.findByCredentialUsername(username).getProfile());
+			User ourUser = userRepo.findByUsername(credential.getUsername());
+			ourUser.getFollowing().add(userRepo.findByUsername(username));
 			userRepo.save(ourUser);
 			return true;
 		} else {
@@ -105,24 +104,24 @@ public class UserService {
 		}
 	}
 
-	public Set<Profile> getUserFollows(String username) {
+	public Set<User> getUserFollows(String username) {
 		if (getByUsername(username) != null) {
-			Set<Profile> followProjection = userRepo.findByCredentialUsername(username).getProfile().getFollowing();
+			Set<User> followProjection = userRepo.findByUsername(username).getFollowing();
 			return followProjection;
 		}
 		return null;
 	}
 
-	public Set<Profile> getUserFollowers(String username) {
+	public Set<User> getUserFollowers(String username) {
 		if (getByUsername(username) != null) {
-			return userRepo.findByCredentialUsername(username).getProfile().getFollowers();
+			return userRepo.findByUsername(username).getFollowers();
 		}
 		return null;
 	}
 
 	public List<Tweet> getUserFeed(String username) {
 		if (getByUsername(username) != null) {
-			return userRepo.findByCredentialUsername(username).getProfile().getTweets();
+			return userRepo.findByUsername(username).getProfile().getTweets();
 		}
 		return null;
 	}
