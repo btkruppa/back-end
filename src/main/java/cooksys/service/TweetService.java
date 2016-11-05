@@ -35,11 +35,6 @@ public class TweetService {
 		this.userRepo = userRepo;
 	}
 
-	public void addTags(Tweet tweet, Tag Tag) {
-		tweet.getTags().add(Tag);
-		tweetRepo.saveAndFlush(tweet);
-	}
-
 	public Tweet get(Long id) {
 		return tweetRepo.getOne(id);
 	}
@@ -70,9 +65,7 @@ public class TweetService {
 		User mention;
 		while (m.find()) {
 			mention = userRepo.findByUsername(m.group(0).substring(2));
-			System.out.println(m.group(0).substring(2));
 			if (mention != null) {
-				System.out.println("here");
 				mentions.add(mention);
 			}
 		}
@@ -150,5 +143,25 @@ public class TweetService {
 		}
 
 		return target.getReposts();
+	}
+
+	public List<Tweet> getReplies(Long id) {
+		return tweetRepo.getOne(id).getReplies();
+		// Tweet target = tweetRepo.getOne(id);
+		//
+		// for (Tweet t : target.getRplies()) {
+		// Hibernate.initialize(t);
+		// System.out.println(t.getClass());
+		// }
+		//
+		// return target.getReplies();
+	}
+
+	public List<Tag> getTweetTags(Long id) {
+		return tagRepo.findByTweetsId(id);
+	}
+	
+	public List<User> getTweetMentions(Long id) {
+		return userRepo.findByMentionsId(id);
 	}
 }

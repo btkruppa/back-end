@@ -133,7 +133,7 @@ public class UserService {
 		return null;
 	}
 
-	public List<Tweet> getUserFeed(String username) {
+	public List<Tweet> getUserTweets(String username) {
 		if (getByUsername(username) != null) {
 			List<Tweet> feed = userRepo.findByUsername(username).getTweets();
 			Collections.reverse(feed);
