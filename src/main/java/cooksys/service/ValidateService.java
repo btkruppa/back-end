@@ -20,6 +20,6 @@ public class ValidateService {
 	}
 
 	public boolean doesUserExist(String username) {
-		return (userRepo.findByUsername(username) == null) ? false : true;
+		return (userRepo.findByUsernameAndActiveTrue(username) == null) ? false : true;
 	}
 }

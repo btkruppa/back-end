@@ -64,7 +64,7 @@ public class TweetService {
 		List<User> mentions = new ArrayList<User>();
 		User mention;
 		while (m.find()) {
-			mention = userRepo.findByUsername(m.group(0).substring(2));
+			mention = userRepo.findByUsernameAndActiveTrue(m.group(0).substring(2));
 			if (mention != null) {
 				mentions.add(mention);
 			}
@@ -77,7 +77,7 @@ public class TweetService {
 		if (isCredentialValid(tweetRequest.getCredential())) {
 			Tweet tweet = new Tweet();
 			tweet.setContent(tweetRequest.getContent());
-			tweet.setAuthor(userRepo.findByUsername(tweetRequest.getCredential().getUsername()));
+			tweet.setAuthor(userRepo.findByUsernameAndActiveTrue(tweetRequest.getCredential().getUsername()));
 
 			tweet.setTags(extractTags(tweetRequest.getContent()));
 			tweet.setUserMentions(extractMentions(tweetRequest.getContent()));
@@ -101,7 +101,7 @@ public class TweetService {
 			Tweet repostedTweet = tweetRepo.getOne(id);
 			if (repostedTweet != null) {
 				Tweet tweet = new Tweet();
-				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername()));
+				tweet.setAuthor(userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredential().getUsername()));
 				tweet.setRepostof(repostedTweet);
 				tweet.setContent(tweetCreationRequestModel.getContent());
 
@@ -120,7 +120,7 @@ public class TweetService {
 			Tweet repliedTweet = tweetRepo.getOne(id);
 			if (repliedTweet != null) {
 				Tweet tweet = new Tweet();
-				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername()));
+				tweet.setAuthor(userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredential().getUsername()));
 				tweet.setReplyto(repliedTweet);
 				tweet.setContent(tweetCreationRequestModel.getContent());
 

@@ -30,8 +30,13 @@ public class UserService {
 		this.profileRepo = profileRepo;
 	}
 
-	public User getByUsername(String username) {
-		return userRepo.findByUsername(username);
+	public User getByUsername(String username) throws Exception {
+		User user = userRepo.findByUsernameAndActiveTrue(username);
+		if (user == null) {
+			throw new Exception("User does not exist");
+		} else {
+			return user;
+		}
 	}
 
 	public boolean doesUserExist(String username) {
@@ -63,9 +68,9 @@ public class UserService {
 	}
 
 	@Transactional
-	public User update(CreateProfileRequestModel createProfileRequestModel) {
+	public User update(CreateProfileRequestModel createProfileRequestModel) throws Exception {
 		if (isCredentialValid(createProfileRequestModel.getCredential())) {
-			User oldUser = getByUsername(createProfileRequestModel.getCredential().getUsername());
+			User oldUser = userRepo.findByUsername(createProfileRequestModel.getCredential().getUsername());
 			Profile oldUserProfile = oldUser.getProfile();
 			Profile userProfile = createProfileRequestModel.getProfile();
 			if (userProfile.getEmail() != null) {
@@ -80,74 +85,79 @@ public class UserService {
 			if (userProfile.getPhoneNumber() != null) {
 				oldUserProfile.setPhoneNumber(userProfile.getPhoneNumber());
 			}
+			oldUser.setActive(true);
 			profileRepo.save(oldUserProfile);
 			return oldUser;
 		}
-		return null;
+		throw new Exception("Invalid Credentials");
 	}
 
 	public List<User> get() {
-		return userRepo.findAll();
+		return userRepo.findByActiveTrue();
 	}
 
 	@Transactional
-	public boolean follow(String username, Credential credential) {
+	public boolean follow(String username, Credential credential) throws Exception {
 		if (username.equals(credential.getUsername())) {
-			return false;
+			throw new Exception("Users cannot follow themselves");
 		}
 		if (isCredentialValid(credential)) {
-			User ourUser = userRepo.findByUsername(credential.getUsername());
-			ourUser.getFollowing().add(userRepo.findByUsername(username));
+			User ourUser = userRepo.findByUsernameAndActiveTrue(credential.getUsername());
+			ourUser.getFollowing().add(userRepo.findByUsernameAndActiveTrue(username));
 			userRepo.save(ourUser);
 			return true;
 		} else {
-			return false;
+			throw new Exception("Invalid Credentials");
 		}
 	}
 
 	@Transactional
-	public boolean unFollow(String username, Credential credential) {
+	public boolean unFollow(String username, Credential credential) throws Exception {
 		if (isCredentialValid(credential)) {
-			User ourUser = userRepo.findByUsername(credential.getUsername());
+			User ourUser = userRepo.findByUsernameAndActiveTrue(credential.getUsername());
 			boolean unfollowed = ourUser.getFollowing().removeIf(user -> user.getUsername().equals(username));
 			if (unfollowed) {
 				userRepo.save(ourUser);
 				return true;
 			}
+			throw new Exception("User from credentials was not following the user provided");
 		}
-		return false;
+		throw new Exception("Invalid Credentials");
 	}
 
-	public Set<User> getUserFollows(String username) {
-		if (getByUsername(username) != null) {
-			Set<User> followProjection = userRepo.findByUsername(username).getFollowing();
-			return followProjection;
-		}
-		return null;
+	public Set<User> getUserFollows(String username) throws Exception {
+		User user = getByUsername(username);
+		// Set<User> follows = user.getFollowing();
+		Set<User> follows = userRepo.findByFollowersIdAndActiveTrue(user.getId());
+		return follows;
 	}
 
-	public Set<User> getUserFollowers(String username) {
-		if (getByUsername(username) != null) {
-			return userRepo.findByUsername(username).getFollowers();
-		}
-		return null;
+	public Set<User> getUserFollowers(String username) throws Exception {
+		User user = getByUsername(username);
+		return userRepo.findByFollowingIdAndActiveTrue(user.getId());
 	}
 
-	public List<Tweet> getUserTweets(String username) {
-		if (getByUsername(username) != null) {
-			List<Tweet> feed = userRepo.findByUsername(username).getTweets();
-			Collections.reverse(feed);
-			return feed;
-		}
-		return null;
+	public List<Tweet> getUserTweets(String username) throws Exception {
+		User user = getByUsername(username);
+		List<Tweet> feed = user.getTweets();
+		Collections.reverse(feed);
+		return feed;
 	}
 
-	public List<Tweet> getUserMentions(String username) {
-		if (getByUsername(username) != null) {
-			List<Tweet> mentions = userRepo.findByUsername(username).getMentions();
-			Collections.reverse(mentions);
-			return mentions;
+	public List<Tweet> getUserMentions(String username) throws Exception {
+		User user = getByUsername(username);
+		List<Tweet> mentions = user.getMentions();
+		Collections.reverse(mentions);
+		return mentions;
+	}
+
+	public User delete(String username, Credential credential) throws Exception {
+		if (isCredentialValid(credential)) {
+			User user = getByUsername(credential.getUsername());
+			user.setActive(false);
+			userRepo.save(user);
+			return user;
 		}
-		return null;
+		throw new Exception("Invalid credentials");
 	}
 }
