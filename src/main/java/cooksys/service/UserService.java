@@ -1,5 +1,6 @@
 package cooksys.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public void add(CreateProfileRequestModel createProfileRequestModel) {
+	public User add(CreateProfileRequestModel createProfileRequestModel) throws Exception {
 		if (!doesUserExist(createProfileRequestModel.getCredential().getUsername())) {
 			if (!doesProfileExist(createProfileRequestModel.getProfile().getEmail())) {
 				User user = new User();
@@ -55,9 +56,10 @@ public class UserService {
 				user.setProfile(createProfileRequestModel.getProfile());
 				credentialRepo.saveAndFlush(createProfileRequestModel.getCredential());
 				profileRepo.saveAndFlush(createProfileRequestModel.getProfile());
-				userRepo.saveAndFlush(user);
+				return userRepo.saveAndFlush(user);
 			}
 		}
+		throw new Exception("User already exists");
 	}
 
 	@Transactional
@@ -90,6 +92,9 @@ public class UserService {
 
 	@Transactional
 	public boolean follow(String username, Credential credential) {
+		if (username.equals(credential.getUsername())) {
+			return false;
+		}
 		if (isCredentialValid(credential)) {
 			User ourUser = userRepo.findByUsername(credential.getUsername());
 			ourUser.getFollowing().add(userRepo.findByUsername(username));
@@ -98,6 +103,19 @@ public class UserService {
 		} else {
 			return false;
 		}
+	}
+
+	@Transactional
+	public boolean unFollow(String username, Credential credential) {
+		if (isCredentialValid(credential)) {
+			User ourUser = userRepo.findByUsername(credential.getUsername());
+			boolean unfollowed = ourUser.getFollowing().removeIf(user -> user.getUsername().equals(username));
+			if (unfollowed) {
+				userRepo.save(ourUser);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Set<User> getUserFollows(String username) {
@@ -117,7 +135,18 @@ public class UserService {
 
 	public List<Tweet> getUserFeed(String username) {
 		if (getByUsername(username) != null) {
-			return userRepo.findByUsername(username).getTweets();
+			List<Tweet> feed = userRepo.findByUsername(username).getTweets();
+			Collections.reverse(feed);
+			return feed;
+		}
+		return null;
+	}
+
+	public List<Tweet> getUserMentions(String username) {
+		if (getByUsername(username) != null) {
+			List<Tweet> mentions = userRepo.findByUsername(username).getMentions();
+			Collections.reverse(mentions);
+			return mentions;
 		}
 		return null;
 	}

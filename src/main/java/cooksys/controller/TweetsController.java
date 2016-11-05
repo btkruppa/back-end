@@ -50,12 +50,14 @@ public class TweetsController {
 		tweetService.repost(id, tweetCreationRequestModel);
 	}
 
+	@PostMapping("/{id}/reply")
+	public void reply(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel) {
+		tweetService.reply(id, tweetCreationRequestModel);
+	}
+
 	@GetMapping("/{id}/reposts")
 	public List<Tweet> getReposts(@PathVariable Long id) {
 		List<Tweet> reposts = tweetService.getReposts(id);
-
-		reposts.forEach(tweet -> System.out.println(tweet.getClass()));
-
 		return reposts;
 	}
 

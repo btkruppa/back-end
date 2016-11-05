@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
@@ -38,13 +39,16 @@ public class Tweet {
 	private User author;
 
 	@ManyToMany
+	@JsonIgnore
 	private List<Tag> tags;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JsonIdentityReference(alwaysAsId = true)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Tweet repostof;
 
 	@ManyToOne
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Tweet replyto;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "repostof")
@@ -54,6 +58,10 @@ public class Tweet {
 	@OneToMany(mappedBy = "replyto")
 	@JsonIgnore
 	private List<Tweet> replies;
+
+	@ManyToMany
+	@JsonIgnore
+	private List<User> userMentions;
 
 	public Long getId() {
 		return id;
@@ -127,4 +135,11 @@ public class Tweet {
 		this.replyto = replyto;
 	}
 
+	public List<User> getUserMentions() {
+		return userMentions;
+	}
+
+	public void setUserMentions(List<User> userMentions) {
+		this.userMentions = userMentions;
+	}
 }

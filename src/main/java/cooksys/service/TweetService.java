@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import cooksys.entity.Credential;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
+import cooksys.entity.User;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.TweetRepo;
@@ -43,6 +44,41 @@ public class TweetService {
 		return tweetRepo.getOne(id);
 	}
 
+	private List<Tag> extractTags(String content) {
+		String pattern = "( #)\\w+([^\\s]+)";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(content);
+		Tag tag;
+		List<Tag> tags = new ArrayList<Tag>();
+		while (m.find()) {
+			tag = tagRepo.findByLabel(m.group(0).substring(1));
+			if (tag == null) {
+				tag = new Tag();
+				tag.setLabel(m.group(0).substring(1));
+			}
+			tag = tagRepo.saveAndFlush(tag);
+			tags.add(tag);
+		}
+		return tags;
+	}
+
+	private List<User> extractMentions(String content) {
+		String pattern = "( @)\\w+([^\\s]+)";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(content);
+		List<User> mentions = new ArrayList<User>();
+		User mention;
+		while (m.find()) {
+			mention = userRepo.findByUsername(m.group(0).substring(2));
+			System.out.println(m.group(0).substring(2));
+			if (mention != null) {
+				System.out.println("here");
+				mentions.add(mention);
+			}
+		}
+		return mentions;
+	}
+
 	@Transactional
 	public void add(TweetCreationRequestModel tweetRequest) {
 		if (isCredentialValid(tweetRequest.getCredential())) {
@@ -50,32 +86,9 @@ public class TweetService {
 			tweet.setContent(tweetRequest.getContent());
 			tweet.setAuthor(userRepo.findByUsername(tweetRequest.getCredential().getUsername()));
 
-			// for tags and users
-			// ( #)\w+([^\s]+)
-			String content = tweetRequest.getContent();
-			String pattern = "( #)\\w+([^\\s]+)";
+			tweet.setTags(extractTags(tweetRequest.getContent()));
+			tweet.setUserMentions(extractMentions(tweetRequest.getContent()));
 
-			// Create a Pattern object
-			Pattern r = Pattern.compile(pattern);
-
-			// Now create matcher object.
-			Matcher m = r.matcher(content);
-			Tag tag;
-			List<Tag> tags = new ArrayList<Tag>();
-			while (m.find()) {
-				System.out.println("Found value: " + m.group(0));
-				tag = tagRepo.findByLabel(m.group(0).substring(1));
-				if (tag == null) {
-					System.out.println("here");
-					tag = new Tag();
-					tag.setLabel(m.group(0).substring(1));
-				}
-				System.out.println(tag.getLabel());
-				tag = tagRepo.saveAndFlush(tag);
-				System.out.println(tag.getId());
-				tags.add(tag);
-			}
-			tweet.setTags(tags);
 			tweetRepo.saveAndFlush(tweet);
 		}
 	}
@@ -98,8 +111,31 @@ public class TweetService {
 				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername()));
 				tweet.setRepostof(repostedTweet);
 				tweet.setContent(tweetCreationRequestModel.getContent());
+
+				tweet.setUserMentions(extractMentions(tweetCreationRequestModel.getContent()));
+				tweet.setTags(extractTags(tweetCreationRequestModel.getContent()));
+
 				tweet = tweetRepo.saveAndFlush(tweet);
 				repostedTweet.getReposts().add(tweet);
+			}
+		}
+	}
+
+	@Transactional
+	public void reply(Long id, TweetCreationRequestModel tweetCreationRequestModel) {
+		if (isCredentialValid(tweetCreationRequestModel.getCredential())) {
+			Tweet repliedTweet = tweetRepo.getOne(id);
+			if (repliedTweet != null) {
+				Tweet tweet = new Tweet();
+				tweet.setAuthor(userRepo.findByUsername(tweetCreationRequestModel.getCredential().getUsername()));
+				tweet.setReplyto(repliedTweet);
+				tweet.setContent(tweetCreationRequestModel.getContent());
+
+				tweet.setUserMentions(extractMentions(tweetCreationRequestModel.getContent()));
+				tweet.setTags(extractTags(tweetCreationRequestModel.getContent()));
+
+				tweet = tweetRepo.saveAndFlush(tweet);
+				repliedTweet.getReplies().add(tweet);
 			}
 		}
 	}

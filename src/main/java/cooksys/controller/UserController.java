@@ -52,9 +52,14 @@ public class UserController {
 		return userService.getUserFeed(username);
 	}
 
+	@GetMapping("/@{username}/mentions")
+	public List<Tweet> getUserMentions(@PathVariable String username) {
+		return userService.getUserMentions(username);
+	}
+
 	@PostMapping
-	public void add(@RequestBody CreateProfileRequestModel createProfileRequestModel) {
-		userService.add(createProfileRequestModel);
+	public User add(@RequestBody CreateProfileRequestModel createProfileRequestModel) throws Exception {
+		return userService.add(createProfileRequestModel);
 	}
 
 	@PatchMapping("/@{username}")
@@ -69,6 +74,15 @@ public class UserController {
 	@PostMapping("/@{username}/follow")
 	public String follow(@PathVariable String username, @RequestBody Credential credential) {
 		if (userService.follow(username, credential)) {
+			return null;
+		} else {
+			return "ERROR";
+		}
+	}
+
+	@PostMapping("/@{username}/unfollow")
+	public String unFollow(@PathVariable String username, @RequestBody Credential credential) {
+		if (userService.unFollow(username, credential)) {
 			return null;
 		} else {
 			return "ERROR";

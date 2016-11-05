@@ -1,17 +1,12 @@
 package cooksys.entity;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 public class Profile {
@@ -20,12 +15,16 @@ public class Profile {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String firstName;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String lastName;
 
 	@Column(unique = true, nullable = false)
 	private String email;
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String phoneNumber;
 
 	public Long getId() {

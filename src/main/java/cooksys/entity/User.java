@@ -45,6 +45,10 @@ public class User {
 	@JsonIgnore
 	private List<Tweet> tweets;
 
+	@ManyToMany(mappedBy = "userMentions")
+	@JsonIgnore
+	private List<Tweet> mentions;
+
 	public Long getId() {
 		return id;
 	}
@@ -99,5 +103,13 @@ public class User {
 
 	public void setTweets(List<Tweet> tweets) {
 		this.tweets = tweets;
+	}
+
+	public List<Tweet> getMentions() {
+		return mentions;
+	}
+
+	public void setMentions(List<Tweet> mentions) {
+		this.mentions = mentions;
 	}
 }
