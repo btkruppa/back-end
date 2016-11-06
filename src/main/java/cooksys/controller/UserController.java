@@ -64,7 +64,8 @@ public class UserController {
 	}
 
 	@PatchMapping("/@{username}")
-	public User patch(@PathVariable String username, @RequestBody CreateProfileRequestModel createProfileRequestModel) throws Exception {
+	public User patch(@PathVariable String username, @RequestBody CreateProfileRequestModel createProfileRequestModel)
+			throws Exception {
 		if (createProfileRequestModel.getCredential().getUsername().equals(username)) {
 			return userService.update(createProfileRequestModel);
 		} else {

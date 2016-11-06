@@ -1,7 +1,9 @@
 package cooksys.controller;
 
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cooksys.entity.Credential;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
@@ -30,9 +33,9 @@ public class TweetsController {
 		return tweetService.getAll();
 	}
 
-	@GetMapping("/{tweet}")
-	public Tweet get(@PathVariable Tweet tweet) {
-		return tweet;
+	@GetMapping("/{id}")
+	public Tweet get(@PathVariable Long id) throws Exception {
+		return tweetService.getTweet(id);
 	}
 
 	@GetMapping("/{id}/tags")
@@ -51,24 +54,40 @@ public class TweetsController {
 	}
 
 	@PostMapping("/{id}/repost")
-	public void repost(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel) {
+	public void repost(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
+			throws Exception {
 		tweetService.repost(id, tweetCreationRequestModel);
 	}
 
 	@PostMapping("/{id}/reply")
-	public void reply(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel) {
+	public void reply(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
+			throws Exception {
 		tweetService.reply(id, tweetCreationRequestModel);
 	}
 
+	@PostMapping("/{id}/like")
+	public void like(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
+		tweetService.like(id, credential);
+	}
+
+	@DeleteMapping("/{id}")
+	public Tweet delete(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
+		return tweetService.delete(id, credential);
+	}
+
 	@GetMapping("/{id}/reposts")
-	public List<Tweet> getReposts(@PathVariable Long id) {
+	public List<Tweet> getReposts(@PathVariable Long id) throws Exception {
 		List<Tweet> reposts = tweetService.getReposts(id);
 		return reposts;
 	}
 
 	@GetMapping("/{id}/replies")
-	public List<Tweet> getReplies(@PathVariable Long id) {
+	public List<Tweet> getReplies(@PathVariable Long id) throws Exception {
 		return tweetService.getReplies(id);
 	}
 
+	@GetMapping("/{id}/likes")
+	public Set<User> getLikes(@PathVariable Long id) throws Exception {
+		return tweetService.getLikes(id);
+	}
 }

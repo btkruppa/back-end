@@ -49,6 +49,18 @@ public class User {
 	@JsonIgnore
 	private List<Tweet> mentions;
 
+	@ManyToMany(mappedBy = "usersLike")
+	@JsonIgnore
+	private List<Tweet> likes;
+
+	public List<Tweet> getLikes() {
+		return likes;
+	}
+
+	public void setLikes(List<Tweet> likes) {
+		this.likes = likes;
+	}
+
 	@JsonIgnore
 	private boolean active = true;
 

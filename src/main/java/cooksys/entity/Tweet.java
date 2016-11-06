@@ -2,6 +2,7 @@ package cooksys.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,6 +30,7 @@ public class Tweet {
 	private Long id;
 
 	@Column(nullable = false)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String content;
 
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
@@ -36,6 +38,7 @@ public class Tweet {
 
 	@ManyToOne
 	@JoinColumn(nullable = false, updatable = false)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private User author;
 
 	@ManyToMany
@@ -63,6 +66,29 @@ public class Tweet {
 	@JsonIgnore
 	private List<User> userMentions;
 
+	@ManyToMany
+	@JsonIgnore
+	private Set<User> usersLike;
+
+	@JsonIgnore
+	private boolean deleted = false;
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public Set<User> getUsersLike() {
+		return usersLike;
+	}
+
+	public void setUsersLike(Set<User> usersLike) {
+		this.usersLike = usersLike;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -72,6 +98,9 @@ public class Tweet {
 	}
 
 	public String getContent() {
+		if (deleted) {
+			return null;
+		}
 		return content;
 	}
 
@@ -112,10 +141,18 @@ public class Tweet {
 	}
 
 	public User getAuthor() {
+		if (isDeleted()) {
+			return null;
+		}
 		return author;
 	}
 
+	// by not setting the author if he isn't active we can preserve the chain of
+	// tweets without showing his info
 	public void setAuthor(User author) {
+		if (!author.isActive()) {
+			return;
+		}
 		this.author = author;
 	}
 

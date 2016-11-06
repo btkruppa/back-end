@@ -14,6 +14,7 @@ import cooksys.entity.Tweet;
 import cooksys.entity.User;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.ProfileRepo;
+import cooksys.repository.TweetRepo;
 import cooksys.repository.UserRepo;
 import cooksys.request_models.CreateProfileRequestModel;
 
@@ -23,11 +24,13 @@ public class UserService {
 	private CredentialRepo credentialRepo;
 	private UserRepo userRepo;
 	private ProfileRepo profileRepo;
+	private TweetRepo tweetRepo;
 
-	public UserService(UserRepo userRepo, CredentialRepo credentialRepo, ProfileRepo profileRepo) {
+	public UserService(UserRepo userRepo, CredentialRepo credentialRepo, ProfileRepo profileRepo, TweetRepo tweetRepo) {
 		this.userRepo = userRepo;
 		this.credentialRepo = credentialRepo;
 		this.profileRepo = profileRepo;
+		this.tweetRepo = tweetRepo;
 	}
 
 	public User getByUsername(String username) throws Exception {
@@ -138,10 +141,11 @@ public class UserService {
 	}
 
 	public List<Tweet> getUserTweets(String username) throws Exception {
-		User user = getByUsername(username);
-		List<Tweet> feed = user.getTweets();
-		Collections.reverse(feed);
-		return feed;
+		// User user = getByUsername(username);
+		// List<Tweet> feed = user.getTweets();
+		// Collections.reverse(feed);
+		// return feed;
+		return tweetRepo.findByDeletedFalseAndAuthorUsername(username);
 	}
 
 	public List<Tweet> getUserMentions(String username) throws Exception {
