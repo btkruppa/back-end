@@ -20,7 +20,7 @@
 //
 // @ManyToOne
 // @JsonIgnore
-// private Tweet repost;
+// private TweetI repost;
 //
 // @ManyToMany(mappedBy = "following")
 // @JsonIgnore

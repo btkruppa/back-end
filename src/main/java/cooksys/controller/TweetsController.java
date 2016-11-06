@@ -15,7 +15,9 @@ import cooksys.entity.Credential;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
+import cooksys.projections.DeletedTweetProjection;
 import cooksys.request_models.TweetCreationRequestModel;
+import cooksys.response_models.Context;
 import cooksys.service.TweetService;
 
 @RestController
@@ -71,7 +73,7 @@ public class TweetsController {
 	}
 
 	@DeleteMapping("/{id}")
-	public Tweet delete(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
+	public DeletedTweetProjection delete(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
 		return tweetService.delete(id, credential);
 	}
 
@@ -89,5 +91,10 @@ public class TweetsController {
 	@GetMapping("/{id}/likes")
 	public Set<User> getLikes(@PathVariable Long id) throws Exception {
 		return tweetService.getLikes(id);
+	}
+
+	@GetMapping("/{id}/context")
+	public Context getContext(@PathVariable Long id) throws Exception {
+		return tweetService.getContext(id);
 	}
 }

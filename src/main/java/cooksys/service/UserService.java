@@ -130,8 +130,6 @@ public class UserService {
 	public Set<User> getUserFollows(String username) throws Exception {
 		User user = getByUsername(username); // this will throw an error if the
 												// user does
-		// not exist or is not active
-		// Set<User> follows = user.getFollowing();
 		Set<User> follows = userRepo.findByFollowersIdAndActiveTrue(user.getId());
 		return follows;
 	}
@@ -159,5 +157,13 @@ public class UserService {
 			return user;
 		}
 		throw new Exception("Invalid credentials");
+	}
+
+	public List<Tweet> getUserFeed(String username) throws Exception {
+		User user = getByUsername(username);
+
+		return tweetRepo
+				.findByDeletedFalseAndAuthorActiveTrueAndAuthorFollowersIdOrDeletedFalseAndAuthorIdAndAuthorActiveTrueOrderByPostedDesc(
+						user.getId(), user.getId());
 	}
 }

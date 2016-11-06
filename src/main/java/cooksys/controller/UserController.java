@@ -57,6 +57,11 @@ public class UserController {
 	public List<Tweet> getUserMentions(@PathVariable String username) throws Exception {
 		return userService.getUserMentions(username);
 	}
+	
+	@GetMapping("/@{username}/feed") 
+	public List<Tweet> getUserFeed(@PathVariable String username) throws Exception {
+		return userService.getUserFeed(username);
+	}
 
 	@PostMapping
 	public User add(@RequestBody CreateProfileRequestModel createProfileRequestModel) throws Exception {

@@ -141,7 +141,7 @@ public class Tweet {
 	}
 
 	public User getAuthor() {
-		if (isDeleted()) {
+		if (isDeleted() || !author.isActive()) {
 			return null;
 		}
 		return author;
@@ -150,9 +150,6 @@ public class Tweet {
 	// by not setting the author if he isn't active we can preserve the chain of
 	// tweets without showing his info
 	public void setAuthor(User author) {
-		if (!author.isActive()) {
-			return;
-		}
 		this.author = author;
 	}
 

@@ -1,6 +1,8 @@
 package cooksys.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -14,11 +16,13 @@ import cooksys.entity.Credential;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
+import cooksys.projections.DeletedTweetProjection;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.TweetRepo;
 import cooksys.repository.UserRepo;
 import cooksys.request_models.TweetCreationRequestModel;
+import cooksys.response_models.Context;
 
 @Service
 public class TweetService {
@@ -38,7 +42,7 @@ public class TweetService {
 	public Tweet getTweet(Long id) throws Exception {
 		Tweet tweet = tweetRepo.findByIdAndDeletedFalse(id);
 		if (tweet == null) {
-			throw new Exception("Tweet does not exist");
+			throw new Exception("TweetI does not exist");
 		} else {
 			return tweet;
 		}
@@ -92,7 +96,7 @@ public class TweetService {
 	}
 
 	public List<Tweet> getAll() {
-		return tweetRepo.findByDeletedFalse();
+		return tweetRepo.findByDeletedFalseOrderByPostedDesc();
 	}
 
 	private boolean isCredentialValid(Credential credential) {
@@ -155,13 +159,6 @@ public class TweetService {
 	}
 
 	public List<Tweet> getReposts(Long id) throws Exception {
-		// Tweet target = getTweet(id);
-		//
-		// for (Tweet t : target.getReposts()) {
-		// Hibernate.initialize(t);
-		// }
-		//
-		// return target.getReposts();
 		getTweet(id);
 		return tweetRepo.findByDeletedFalseAndRepostofId(id);
 	}
@@ -187,18 +184,82 @@ public class TweetService {
 	}
 
 	@Transactional
-	public Tweet delete(Long id, Credential credential) throws Exception {
+	public DeletedTweetProjection delete(Long id, Credential credential) throws Exception {
 		if (isCredentialValid(credential)) {
 			Tweet tweet = getTweet(id);
 			if (credential.getUsername().equals(tweet.getAuthor().getUsername())) {
+
+				// alright maybe there is a better way to project but because I
+				// have logic in the getters and setters this is all I could
+				// figure out
+				DeletedTweetProjection deletedTweet = new DeletedTweetProjection(tweet);
+
 				tweet.setDeleted(true);
 				tweetRepo.save(tweet);
-				return tweet;
+				return deletedTweet;
 			} else {
 				throw new Exception("Credentials do not match the tweets author");
 			}
 		} else {
 			throw new Exception("Invalid Credentials");
 		}
+	}
+
+	private List<Tweet> getAfter(Tweet tweet) {
+		List<Tweet> after = new ArrayList<Tweet>();
+		List<Tweet> replies = tweet.getReplies();
+		List<Tweet> reposts = tweet.getReposts();
+		if (replies.size() != 0) {
+			replies.forEach(reply -> {
+				after.add(reply);
+				after.addAll(getAfter(reply));
+			});
+		}
+		if (reposts.size() != 0) {
+			reposts.forEach(repost -> {
+				after.add(repost);
+				after.addAll(getAfter(repost));
+			});
+		}
+
+		Collections.sort(after, new Comparator<Tweet>() {
+			@Override
+			public int compare(Tweet t1, Tweet t2) {
+				// when I wrote this code the unix millisecond time was
+				// 1478461217792 so no tweet should ever have been created
+				// before that time so we can then safely convert to int for
+				// comparison sake. Yes if this program runs for too long it can
+				// literally break ...
+				return Math.toIntExact(t2.getPosted().getTime() - 1478461217792L)
+						- Math.toIntExact(t1.getPosted().getTime() - 1478461217792L);
+			}
+
+		});
+
+		return after;
+	}
+
+	public Context getContext(Long id) throws Exception {
+		Context context = new Context();
+		Tweet tweet = getTweet(id);
+		context.setTarget(tweet);
+		List<Tweet> before = new ArrayList<Tweet>();
+		Tweet repostofOrReplyto = tweet.getRepostof();
+		if (repostofOrReplyto == null) {
+			repostofOrReplyto = tweet.getReplyto();
+		}
+		while (repostofOrReplyto != null) {
+			before.add(repostofOrReplyto);
+			if (repostofOrReplyto.getRepostof() != null) {
+				repostofOrReplyto = repostofOrReplyto.getRepostof();
+			} else {
+				repostofOrReplyto = repostofOrReplyto.getReplyto();
+			}
+		}
+		context.setBefore(before);
+
+		context.setAfter(getAfter(tweet));
+
+		return context;
 	}
 }
