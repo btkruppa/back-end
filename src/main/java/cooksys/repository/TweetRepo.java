@@ -18,6 +18,8 @@ public interface TweetRepo extends JpaRepository<Tweet, Long> {
 
 	List<Tweet> findByDeletedFalseAndRepostofId(Long id);
 
-	List<Tweet> findByDeletedFalseAndAuthorUsername(String username);
+	List<Tweet> findByDeletedFalseAndAuthorUsernameOrderByPostedDesc(String username);
+
+	List<Tweet> findByDeletedFalseAndUserMentionsUsernameAndUserMentionsActiveTrueOrderByPostedDesc(String username);
 
 }

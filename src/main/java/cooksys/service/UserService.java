@@ -1,6 +1,5 @@
 package cooksys.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -129,7 +128,8 @@ public class UserService {
 	}
 
 	public Set<User> getUserFollows(String username) throws Exception {
-		User user = getByUsername(username);
+		getByUsername(username); // this will throw an error if the user does
+									// not exist or is not active
 		// Set<User> follows = user.getFollowing();
 		Set<User> follows = userRepo.findByFollowersIdAndActiveTrue(user.getId());
 		return follows;
@@ -141,18 +141,13 @@ public class UserService {
 	}
 
 	public List<Tweet> getUserTweets(String username) throws Exception {
-		// User user = getByUsername(username);
-		// List<Tweet> feed = user.getTweets();
-		// Collections.reverse(feed);
-		// return feed;
-		return tweetRepo.findByDeletedFalseAndAuthorUsername(username);
+		return tweetRepo.findByDeletedFalseAndAuthorUsernameOrderByPostedDesc(username);
 	}
 
 	public List<Tweet> getUserMentions(String username) throws Exception {
-		User user = getByUsername(username);
-		List<Tweet> mentions = user.getMentions();
-		Collections.reverse(mentions);
-		return mentions;
+		getByUsername(username); // this will throw an error if the user does
+									// not exist or is not active
+		return tweetRepo.findByDeletedFalseAndUserMentionsUsernameAndUserMentionsActiveTrueOrderByPostedDesc(username);
 	}
 
 	public User delete(String username, Credential credential) throws Exception {
