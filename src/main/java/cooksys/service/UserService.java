@@ -128,8 +128,9 @@ public class UserService {
 	}
 
 	public Set<User> getUserFollows(String username) throws Exception {
-		getByUsername(username); // this will throw an error if the user does
-									// not exist or is not active
+		User user = getByUsername(username); // this will throw an error if the
+												// user does
+		// not exist or is not active
 		// Set<User> follows = user.getFollowing();
 		Set<User> follows = userRepo.findByFollowersIdAndActiveTrue(user.getId());
 		return follows;
