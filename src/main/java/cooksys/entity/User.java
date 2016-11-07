@@ -31,7 +31,7 @@ public class User {
 	private String username;
 
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
-	private Date joined;
+	private Date joined = new Date();
 
 	@ManyToMany
 	@JsonIgnore

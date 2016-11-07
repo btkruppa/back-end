@@ -34,7 +34,7 @@ public class Tweet {
 	private String content;
 
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
-	private Date posted;
+	private Date posted = new Date();
 
 	@ManyToOne
 	@JoinColumn(nullable = false, updatable = false)
