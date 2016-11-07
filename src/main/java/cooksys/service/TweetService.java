@@ -215,19 +215,19 @@ public class TweetService {
 	private List<Tweet> getAfter(Tweet tweet) {
 		List<Tweet> after = new ArrayList<Tweet>();
 		List<Tweet> replies = tweet.getReplies();
-		List<Tweet> reposts = tweet.getReposts();
+		// List<Tweet> reposts = tweet.getReposts();
 		if (replies.size() != 0) {
 			replies.forEach(reply -> {
 				after.add(reply);
 				after.addAll(getAfter(reply));
 			});
 		}
-		if (reposts.size() != 0) {
-			reposts.forEach(repost -> {
-				after.add(repost);
-				after.addAll(getAfter(repost));
-			});
-		}
+		// if (reposts.size() != 0) {
+		// reposts.forEach(repost -> {
+		// after.add(repost);
+		// after.addAll(getAfter(repost));
+		// });
+		// }
 
 		Collections.sort(after, new Comparator<Tweet>() {
 			@Override
@@ -237,8 +237,8 @@ public class TweetService {
 				// before that time so we can then safely convert to int for
 				// comparison sake. Yes if this program runs for too long it can
 				// literally break ...
-				return Math.toIntExact(t2.getPosted().getTime() - 1478461217792L)
-						- Math.toIntExact(t1.getPosted().getTime() - 1478461217792L);
+				return Math.toIntExact(t1.getPosted().getTime() - 1478461217792L)
+						- Math.toIntExact(t2.getPosted().getTime() - 1478461217792L);
 			}
 
 		});

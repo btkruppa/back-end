@@ -84,12 +84,8 @@ public class UserController {
 	}
 
 	@PostMapping("/@{username}/unfollow")
-	public String unFollow(@PathVariable String username, @RequestBody Credentials credentials) throws Exception {
-		if (userService.unFollow(username, credentials)) {
-			return null;
-		} else {
-			return "ERROR";
-		}
+	public void unFollow(@PathVariable String username, @RequestBody Credentials credentials) throws Exception {
+		userService.unFollow(username, credentials);
 	}
 
 	@DeleteMapping("/@{username}")
