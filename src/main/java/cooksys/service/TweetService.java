@@ -110,7 +110,7 @@ public class TweetService {
 	}
 
 	@Transactional
-	public void repost(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
+	public Tweet repost(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
 		if (isCredentialValid(tweetCreationRequestModel.getCredentials())) {
 			Tweet repostedTweet = getTweet(id);
 			Tweet tweet = new Tweet();
@@ -124,13 +124,14 @@ public class TweetService {
 
 			tweet = tweetRepo.saveAndFlush(tweet);
 			repostedTweet.getReposts().add(tweet);
+			return tweet;
 		} else {
 			throw new Exception("Invalid Credentials");
 		}
 	}
 
 	@Transactional
-	public void reply(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
+	public Tweet reply(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
 		if (isCredentialValid(tweetCreationRequestModel.getCredentials())) {
 			Tweet repliedTweet = getTweet(id);
 			Tweet tweet = new Tweet();
@@ -144,6 +145,7 @@ public class TweetService {
 
 			tweet = tweetRepo.saveAndFlush(tweet);
 			repliedTweet.getReplies().add(tweet);
+			return tweet;
 		} else {
 			throw new Exception("Invalid Credentials");
 		}

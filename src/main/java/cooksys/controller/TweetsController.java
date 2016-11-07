@@ -56,15 +56,15 @@ public class TweetsController {
 	}
 
 	@PostMapping("/{id}/repost")
-	public void repost(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
+	public Tweet repost(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
 			throws Exception {
-		tweetService.repost(id, tweetCreationRequestModel);
+		return tweetService.repost(id, tweetCreationRequestModel);
 	}
 
 	@PostMapping("/{id}/reply")
-	public void reply(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
+	public Tweet reply(@PathVariable Long id, @RequestBody TweetCreationRequestModel tweetCreationRequestModel)
 			throws Exception {
-		tweetService.reply(id, tweetCreationRequestModel);
+		return tweetService.reply(id, tweetCreationRequestModel);
 	}
 
 	@PostMapping("/{id}/like")
