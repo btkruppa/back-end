@@ -1,18 +1,18 @@
 package cooksys.request_models;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 import cooksys.entity.Profile;
 
 public class CreateProfileRequestModel {
-	private Credential credential;
+	private Credentials credentials;
 	private Profile profile;
 
-	public Credential getCredential() {
-		return credential;
+	public Credentials getCredentials() {
+		return credentials;
 	}
 
-	public void setCredential(Credential credential) {
-		this.credential = credential;
+	public void setCredentials(Credentials credentials) {
+		this.credentials = credentials;
 	}
 
 	public Profile getProfile() {

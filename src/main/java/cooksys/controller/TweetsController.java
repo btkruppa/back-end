@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
@@ -51,8 +51,8 @@ public class TweetsController {
 	}
 
 	@PostMapping
-	public void add(@RequestBody TweetCreationRequestModel tweetRequest) {
-		tweetService.add(tweetRequest);
+	public Tweet add(@RequestBody TweetCreationRequestModel tweetRequest) throws Exception {
+		return tweetService.add(tweetRequest);
 	}
 
 	@PostMapping("/{id}/repost")
@@ -68,13 +68,13 @@ public class TweetsController {
 	}
 
 	@PostMapping("/{id}/like")
-	public void like(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
-		tweetService.like(id, credential);
+	public void like(@PathVariable Long id, @RequestBody Credentials credentials) throws Exception {
+		tweetService.like(id, credentials);
 	}
 
 	@DeleteMapping("/{id}")
-	public DeletedTweetProjection delete(@PathVariable Long id, @RequestBody Credential credential) throws Exception {
-		return tweetService.delete(id, credential);
+	public DeletedTweetProjection delete(@PathVariable Long id, @RequestBody Credentials credentials) throws Exception {
+		return tweetService.delete(id, credentials);
 	}
 
 	@GetMapping("/{id}/reposts")

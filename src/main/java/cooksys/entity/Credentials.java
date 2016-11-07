@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 @Entity
-public class Credential {
+public class Credentials {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

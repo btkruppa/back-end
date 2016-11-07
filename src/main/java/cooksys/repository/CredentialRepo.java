@@ -2,11 +2,11 @@ package cooksys.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 
-public interface CredentialRepo extends JpaRepository<Credential, Long> {
+public interface CredentialRepo extends JpaRepository<Credentials, Long> {
 
-	Credential findByUsernameIgnoringCase(String name);
+	Credentials findByUsernameIgnoringCase(String name);
 
-	Credential findByUsernameAndPassword(String username, String password);
+	Credentials findByUsernameAndPassword(String username, String password);
 }

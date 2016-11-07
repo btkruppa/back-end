@@ -25,7 +25,7 @@ public class TagService {
 	}
 
 	public List<Tweet> getTweetsByTag(String label) {
-		return tweetRepo.findByTagsLabel(label);
+		return tweetRepo.findByTagsLabelAndDeletedFalseOrderByPostedDesc(label);
 	}
 
 }

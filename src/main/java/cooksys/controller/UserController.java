@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
 import cooksys.request_models.CreateProfileRequestModel;
@@ -57,8 +57,8 @@ public class UserController {
 	public List<Tweet> getUserMentions(@PathVariable String username) throws Exception {
 		return userService.getUserMentions(username);
 	}
-	
-	@GetMapping("/@{username}/feed") 
+
+	@GetMapping("/@{username}/feed")
 	public List<Tweet> getUserFeed(@PathVariable String username) throws Exception {
 		return userService.getUserFeed(username);
 	}
@@ -71,25 +71,21 @@ public class UserController {
 	@PatchMapping("/@{username}")
 	public User patch(@PathVariable String username, @RequestBody CreateProfileRequestModel createProfileRequestModel)
 			throws Exception {
-		if (createProfileRequestModel.getCredential().getUsername().equals(username)) {
+		if (createProfileRequestModel.getCredentials().getUsername().equals(username)) {
 			return userService.update(createProfileRequestModel);
 		} else {
-			throw new Error("No username found");
+			throw new Error("Username does not match credentials");
 		}
 	}
 
 	@PostMapping("/@{username}/follow")
-	public String follow(@PathVariable String username, @RequestBody Credential credential) throws Exception {
-		if (userService.follow(username, credential)) {
-			return null;
-		} else {
-			return "ERROR";
-		}
+	public void follow(@PathVariable String username, @RequestBody Credentials credentials) throws Exception {
+		userService.follow(username, credentials);
 	}
 
 	@PostMapping("/@{username}/unfollow")
-	public String unFollow(@PathVariable String username, @RequestBody Credential credential) throws Exception {
-		if (userService.unFollow(username, credential)) {
+	public String unFollow(@PathVariable String username, @RequestBody Credentials credentials) throws Exception {
+		if (userService.unFollow(username, credentials)) {
 			return null;
 		} else {
 			return "ERROR";
@@ -97,9 +93,9 @@ public class UserController {
 	}
 
 	@DeleteMapping("/@{username}")
-	public User delete(@PathVariable String username, @RequestBody Credential credential) throws Exception {
-		if (username.equals(credential.getUsername())) {
-			return userService.delete(username, credential);
+	public User delete(@PathVariable String username, @RequestBody Credentials credentials) throws Exception {
+		if (username.equals(credentials.getUsername())) {
+			return userService.delete(username, credentials);
 		}
 		throw new Exception("Username provided does not match the credentials");
 	}

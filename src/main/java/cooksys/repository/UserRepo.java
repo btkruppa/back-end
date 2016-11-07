@@ -21,4 +21,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
 	Set<User> findByFollowersIdAndActiveTrue(Long id);
 
 	Set<User> findByActiveTrueAndLikesIdAndLikesDeletedFalse(Long id);
+
+	Object findByUsernameIgnoringCase(String username);
+
+	User findByActiveTrueAndUsernameAndFollowingUsername(String username, String username2);
 }

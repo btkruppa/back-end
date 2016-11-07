@@ -3,6 +3,7 @@ package cooksys.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -12,7 +13,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
@@ -59,6 +60,8 @@ public class TweetService {
 			if (tag == null) {
 				tag = new Tag();
 				tag.setLabel(m.group(0).substring(1));
+			} else {
+				tag.setLastUsed(new Date());
 			}
 			tag = tagRepo.saveAndFlush(tag);
 			tags.add(tag);
@@ -82,16 +85,18 @@ public class TweetService {
 	}
 
 	@Transactional
-	public void add(TweetCreationRequestModel tweetRequest) {
-		if (isCredentialValid(tweetRequest.getCredential())) {
+	public Tweet add(TweetCreationRequestModel tweetRequest) throws Exception {
+		if (isCredentialValid(tweetRequest.getCredentials())) {
 			Tweet tweet = new Tweet();
 			tweet.setContent(tweetRequest.getContent());
-			tweet.setAuthor(userRepo.findByUsernameAndActiveTrue(tweetRequest.getCredential().getUsername()));
+			tweet.setAuthor(userRepo.findByUsernameAndActiveTrue(tweetRequest.getCredentials().getUsername()));
 
 			tweet.setTags(extractTags(tweetRequest.getContent()));
 			tweet.setUserMentions(extractMentions(tweetRequest.getContent()));
 
-			tweetRepo.saveAndFlush(tweet);
+			return tweetRepo.saveAndFlush(tweet);
+		} else {
+			throw new Exception("Invalid Credentials");
 		}
 	}
 
@@ -99,18 +104,18 @@ public class TweetService {
 		return tweetRepo.findByDeletedFalseOrderByPostedDesc();
 	}
 
-	private boolean isCredentialValid(Credential credential) {
-		return (credentialRepo.findByUsernameAndPassword(credential.getUsername(), credential.getPassword()) == null)
+	private boolean isCredentialValid(Credentials credentials) {
+		return (credentialRepo.findByUsernameAndPassword(credentials.getUsername(), credentials.getPassword()) == null)
 				? false : true;
 	}
 
 	@Transactional
 	public void repost(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
-		if (isCredentialValid(tweetCreationRequestModel.getCredential())) {
+		if (isCredentialValid(tweetCreationRequestModel.getCredentials())) {
 			Tweet repostedTweet = getTweet(id);
 			Tweet tweet = new Tweet();
 			tweet.setAuthor(
-					userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredential().getUsername()));
+					userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredentials().getUsername()));
 			tweet.setRepostof(repostedTweet);
 			tweet.setContent(tweetCreationRequestModel.getContent());
 
@@ -126,11 +131,11 @@ public class TweetService {
 
 	@Transactional
 	public void reply(Long id, TweetCreationRequestModel tweetCreationRequestModel) throws Exception {
-		if (isCredentialValid(tweetCreationRequestModel.getCredential())) {
+		if (isCredentialValid(tweetCreationRequestModel.getCredentials())) {
 			Tweet repliedTweet = getTweet(id);
 			Tweet tweet = new Tweet();
 			tweet.setAuthor(
-					userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredential().getUsername()));
+					userRepo.findByUsernameAndActiveTrue(tweetCreationRequestModel.getCredentials().getUsername()));
 			tweet.setReplyto(repliedTweet);
 			tweet.setContent(tweetCreationRequestModel.getContent());
 
@@ -145,9 +150,9 @@ public class TweetService {
 	}
 
 	@Transactional
-	public void like(Long id, Credential credential) throws Exception {
-		if (isCredentialValid(credential)) {
-			User user = userRepo.findByUsernameAndActiveTrue(credential.getUsername());
+	public void like(Long id, Credentials credentials) throws Exception {
+		if (isCredentialValid(credentials)) {
+			User user = userRepo.findByUsernameAndActiveTrue(credentials.getUsername());
 			if (user == null) {
 				throw new Exception("User from credentials does not exist");
 			} else {
@@ -184,10 +189,10 @@ public class TweetService {
 	}
 
 	@Transactional
-	public DeletedTweetProjection delete(Long id, Credential credential) throws Exception {
-		if (isCredentialValid(credential)) {
+	public DeletedTweetProjection delete(Long id, Credentials credentials) throws Exception {
+		if (isCredentialValid(credentials)) {
 			Tweet tweet = getTweet(id);
-			if (credential.getUsername().equals(tweet.getAuthor().getUsername())) {
+			if (credentials.getUsername().equals(tweet.getAuthor().getUsername())) {
 
 				// alright maybe there is a better way to project but because I
 				// have logic in the getters and setters this is all I could

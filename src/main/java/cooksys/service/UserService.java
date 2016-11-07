@@ -7,7 +7,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 import cooksys.entity.Profile;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
@@ -41,38 +41,51 @@ public class UserService {
 		}
 	}
 
-	public boolean doesUserExist(String username) {
-		return (credentialRepo.findByUsernameIgnoringCase(username) == null) ? false : true;
+	public boolean isUsernamveValid(String username) {
+		return (credentialRepo.findByUsernameIgnoringCase(username) == null) ? true : false;
 	}
 
 	public boolean doesProfileExist(String username) {
 		return (profileRepo.findByEmailIgnoringCase(username) == null) ? false : true;
 	}
 
-	private boolean isCredentialValid(Credential credential) {
-		return (credentialRepo.findByUsernameAndPassword(credential.getUsername(), credential.getPassword()) == null)
+	private boolean isCredentialValid(Credentials credentials) {
+		return (credentialRepo.findByUsernameAndPassword(credentials.getUsername(), credentials.getPassword()) == null)
 				? false : true;
 	}
 
 	@Transactional
 	public User add(CreateProfileRequestModel createProfileRequestModel) throws Exception {
-		if (!doesUserExist(createProfileRequestModel.getCredential().getUsername())) {
+		if (isUsernamveValid(createProfileRequestModel.getCredentials().getUsername())) {
 			if (!doesProfileExist(createProfileRequestModel.getProfile().getEmail())) {
 				User user = new User();
-				user.setUsername(createProfileRequestModel.getCredential().getUsername());
+				user.setUsername(createProfileRequestModel.getCredentials().getUsername());
 				user.setProfile(createProfileRequestModel.getProfile());
-				credentialRepo.saveAndFlush(createProfileRequestModel.getCredential());
+				credentialRepo.saveAndFlush(createProfileRequestModel.getCredentials());
 				profileRepo.saveAndFlush(createProfileRequestModel.getProfile());
 				return userRepo.saveAndFlush(user);
 			}
+			throw new Exception("Email address is already in use");
+		} else {
+			if (isCredentialValid(createProfileRequestModel.getCredentials())) {
+				User deletedUser = userRepo.findByUsername(createProfileRequestModel.getCredentials().getUsername());
+				if (deletedUser != null) {
+					if (deletedUser.isActive()) {
+						throw new Exception("You already have an active account with those credentials");
+					}
+					deletedUser.setActive(true);
+					return userRepo.save(deletedUser);
+				}
+			}
+
 		}
 		throw new Exception("User already exists");
 	}
 
 	@Transactional
 	public User update(CreateProfileRequestModel createProfileRequestModel) throws Exception {
-		if (isCredentialValid(createProfileRequestModel.getCredential())) {
-			User oldUser = userRepo.findByUsername(createProfileRequestModel.getCredential().getUsername());
+		if (isCredentialValid(createProfileRequestModel.getCredentials())) {
+			User oldUser = userRepo.findByUsername(createProfileRequestModel.getCredentials().getUsername());
 			Profile oldUserProfile = oldUser.getProfile();
 			Profile userProfile = createProfileRequestModel.getProfile();
 			if (userProfile.getEmail() != null) {
@@ -99,13 +112,18 @@ public class UserService {
 	}
 
 	@Transactional
-	public boolean follow(String username, Credential credential) throws Exception {
-		if (username.equals(credential.getUsername())) {
+	public boolean follow(String username, Credentials credentials) throws Exception {
+		if (username.equals(credentials.getUsername())) {
 			throw new Exception("Users cannot follow themselves");
 		}
-		if (isCredentialValid(credential)) {
-			User ourUser = userRepo.findByUsernameAndActiveTrue(credential.getUsername());
-			ourUser.getFollowing().add(userRepo.findByUsernameAndActiveTrue(username));
+		if (isCredentialValid(credentials)) {
+			User ourUser = getByUsername(credentials.getUsername());
+			User alreadyFollows = userRepo.findByActiveTrueAndUsernameAndFollowingUsername(credentials.getUsername(),
+					username);
+			if (alreadyFollows != null) {
+				throw new Exception(credentials.getUsername() + " already follows " + username);
+			}
+			ourUser.getFollowing().add(getByUsername(username));
 			userRepo.save(ourUser);
 			return true;
 		} else {
@@ -114,9 +132,9 @@ public class UserService {
 	}
 
 	@Transactional
-	public boolean unFollow(String username, Credential credential) throws Exception {
-		if (isCredentialValid(credential)) {
-			User ourUser = userRepo.findByUsernameAndActiveTrue(credential.getUsername());
+	public boolean unFollow(String username, Credentials credentials) throws Exception {
+		if (isCredentialValid(credentials)) {
+			User ourUser = getByUsername(credentials.getUsername());
 			boolean unfollowed = ourUser.getFollowing().removeIf(user -> user.getUsername().equals(username));
 			if (unfollowed) {
 				userRepo.save(ourUser);
@@ -149,9 +167,9 @@ public class UserService {
 		return tweetRepo.findByDeletedFalseAndUserMentionsUsernameAndUserMentionsActiveTrueOrderByPostedDesc(username);
 	}
 
-	public User delete(String username, Credential credential) throws Exception {
-		if (isCredentialValid(credential)) {
-			User user = getByUsername(credential.getUsername());
+	public User delete(String username, Credentials credentials) throws Exception {
+		if (isCredentialValid(credentials)) {
+			User user = getByUsername(credentials.getUsername());
 			user.setActive(false);
 			userRepo.save(user);
 			return user;

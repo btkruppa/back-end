@@ -24,8 +24,8 @@ public class Tag {
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
 	private Date firstUsed;
 
-	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = true)
-	private Date lastUsed;
+	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = true)
+	private Date lastUsed = new Date();
 
 	@ManyToMany(mappedBy = "tags")
 	@JsonIgnore

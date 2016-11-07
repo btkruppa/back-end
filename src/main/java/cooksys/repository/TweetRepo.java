@@ -8,7 +8,7 @@ import cooksys.entity.Tweet;
 
 public interface TweetRepo extends JpaRepository<Tweet, Long> {
 
-	List<Tweet> findByTagsLabel(String label);
+	List<Tweet> findByTagsLabelAndDeletedFalseOrderByPostedDesc(String label);
 
 	Tweet findByIdAndDeletedFalse(Long id);
 

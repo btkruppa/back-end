@@ -1,12 +1,12 @@
 package cooksys.request_models;
 
-import cooksys.entity.Credential;
+import cooksys.entity.Credentials;
 
 public class TweetCreationRequestModel {
 
 	private String content;
 
-	private Credential credential;
+	private Credentials credentials;
 
 	public String getContent() {
 		return content;
@@ -16,12 +16,12 @@ public class TweetCreationRequestModel {
 		this.content = content;
 	}
 
-	public Credential getCredential() {
-		return credential;
+	public Credentials getCredentials() {
+		return credentials;
 	}
 
-	public void setCredential(Credential credential) {
-		this.credential = credential;
+	public void setCredentials(Credentials credentials) {
+		this.credentials = credentials;
 	}
 
 }
