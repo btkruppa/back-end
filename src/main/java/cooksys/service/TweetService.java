@@ -43,7 +43,7 @@ public class TweetService {
 	public Tweet getTweet(Long id) throws Exception {
 		Tweet tweet = tweetRepo.findByIdAndDeletedFalse(id);
 		if (tweet == null) {
-			throw new Exception("TweetI does not exist");
+			throw new Exception("Tweet does not exist");
 		} else {
 			return tweet;
 		}

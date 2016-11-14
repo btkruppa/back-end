@@ -2,6 +2,7 @@ package cooksys.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import cooksys.entity.Tweet;
 import cooksys.service.TagService;
 
 @RestController
+@CrossOrigin
 @RequestMapping("tags")
 public class TagsController {
 
