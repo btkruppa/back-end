@@ -3,6 +3,7 @@ package cooksys.service;
 import org.springframework.stereotype.Service;
 
 import cooksys.entity.Credentials;
+import cooksys.entity.User;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.UserRepo;
@@ -32,8 +33,17 @@ public class ValidateService {
 		return (tagRepo.findByLabel(label) == null) ? false : true;
 	}
 
-	public boolean login(Credentials credentials) {
-		return (credentialRepo.findByUsernameAndPassword(credentials.getUsername(), credentials.getPassword()) == null)
-				? false : true;
+	public User login(Credentials credentials) throws Exception {
+		Credentials userCredentials = credentialRepo.findByUsernameAndPassword(credentials.getUsername(), credentials.getPassword());
+		if (userCredentials == null) {
+			throw new Exception("Invalid Credentials");
+		}
+		
+		User user = userRepo.findByUsernameAndActiveTrue(userCredentials.getUsername());
+		if (user != null) {
+			return user;
+		} else {
+			throw new Exception("User does not exist");
+		}
 	}
 }

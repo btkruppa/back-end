@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cooksys.entity.Credentials;
+import cooksys.entity.User;
 import cooksys.service.UserService;
 import cooksys.service.ValidateService;
 
@@ -41,7 +42,7 @@ public class ValidateController {
 	}
 
 	@PostMapping("login")
-	public boolean login(@RequestBody Credentials credentials) {
+	public User login(@RequestBody Credentials credentials) throws Exception {
 		return validateService.login(credentials);
 	}
 }
