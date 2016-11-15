@@ -205,6 +205,14 @@ Checks whether or not a given username is available.
 'boolean'
 ```
 
+### `GET validate/login`
+Attempts to "login" with provided credentials.
+
+#### Response 
+```Javascript
+'boolean'
+```
+
 ### `GET     users`
 Retrieves all active (non-deleted) users as an array.
 
