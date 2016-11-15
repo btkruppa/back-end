@@ -2,6 +2,7 @@ package cooksys.service;
 
 import org.springframework.stereotype.Service;
 
+import cooksys.entity.Credentials;
 import cooksys.repository.CredentialRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.UserRepo;
@@ -29,5 +30,10 @@ public class ValidateService {
 
 	public boolean doesTagExist(String label) {
 		return (tagRepo.findByLabel(label) == null) ? false : true;
+	}
+
+	public boolean login(Credentials credentials) {
+		return (credentialRepo.findByUsernameAndPassword(credentials.getUsername(), credentials.getPassword()) == null)
+				? false : true;
 	}
 }
