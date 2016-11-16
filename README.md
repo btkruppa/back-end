@@ -345,6 +345,14 @@ Retrieves all hashtags tracked by the database.
 ['Hashtag']
 ```
 
+### `GET     tags`
+Retrieves all hashtags within the last week ordered by most recently used.
+
+#### Response
+```javascript
+['Hashtag']
+```
+
 ### `GET     tags/{label}`
 Retrieves all (non-deleted) tweets tagged with the given hashtag label. The tweets should appear in reverse-chronological order. If no hashtag with the given label exists, an error should be sent in lieu of a response.
 

@@ -1,5 +1,6 @@
 package cooksys.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ public class TagService {
 
 	public List<Tag> getTags() {
 		return tagRepo.findAll();
+	}
+
+	public List<Tag> getRecentTags() {
+		Date date = new Date();
+		return tagRepo.findByLastUsedGreaterThanOrderByLastUsedDesc(new Date(date.getTime() - (7 * 24 * 3600 * 1000)));
 	}
 
 	public List<Tweet> getTweetsByTag(String label) {
