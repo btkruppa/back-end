@@ -371,6 +371,14 @@ Retrieves all (non-deleted) tweets. The tweets should appear in reverse-chronolo
 ['Tweet']
 ```
 
+### `GET     tweets/popular`
+Retrieves all tweets from the last week by popularity.
+
+#### Response
+```javascript
+['Tweet']
+```
+
 ### `POST    tweets`
 Creates a new simple tweet, with the author set to the user identified by the credentials in the request body. If the given credentials do not match an active user in the database, an error should be sent in lieu of a response.
 
