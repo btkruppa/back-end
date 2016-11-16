@@ -269,4 +269,23 @@ public class TweetService {
 
 		return context;
 	}
+
+	public List<Tweet> getPopular() {
+		Date date = new Date();
+		List<Tweet> popular = tweetRepo.findByDeletedFalseAndAuthorActiveTrueAndPostedGreaterThan(
+				new Date(date.getTime() - (7 * 24 * 3600 * 1000)));
+		Collections.sort(popular, new Comparator<Tweet>() {
+			@Override
+			public int compare(Tweet t1, Tweet t2) {
+				// when I wrote this code the unix millisecond time was
+				// 1478461217792 so no tweet should ever have been created
+				// before that time so we can then safely convert to int for
+				// comparison sake. Yes if this program runs for too long it can
+				// literally break ...
+				return Math.toIntExact(t2.getUsersLike().size()) - Math.toIntExact(t1.getUsersLike().size());
+			}
+
+		});
+		return popular;
+	}
 }

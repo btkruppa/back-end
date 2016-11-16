@@ -67,7 +67,6 @@ public class Tweet {
 	private List<User> userMentions;
 
 	@ManyToMany
-	@JsonIgnore
 	private Set<User> usersLike;
 
 	@JsonIgnore

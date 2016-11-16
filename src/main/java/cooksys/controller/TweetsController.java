@@ -99,4 +99,9 @@ public class TweetsController {
 	public Context getContext(@PathVariable Long id) throws Exception {
 		return tweetService.getContext(id);
 	}
+
+	@GetMapping("/popular")
+	public List<Tweet> getPopular() {
+		return tweetService.getPopular();
+	}
 }
