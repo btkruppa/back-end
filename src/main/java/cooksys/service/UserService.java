@@ -1,5 +1,7 @@
 package cooksys.service;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -158,7 +160,7 @@ public class UserService {
 	}
 
 	public List<Tweet> getUserTweets(String username) throws Exception {
-		return tweetRepo.findByDeletedFalseAndAuthorUsernameOrderByPostedDesc(username);
+		return tweetRepo.findByDeletedFalseAndAuthorUsernameAndAuthorActiveTrueOrderByPostedDesc(username);
 	}
 
 	public List<Tweet> getUserMentions(String username) throws Exception {
@@ -180,8 +182,25 @@ public class UserService {
 	public List<Tweet> getUserFeed(String username) throws Exception {
 		User user = getByUsername(username);
 
-		return tweetRepo
-				.findByDeletedFalseAndAuthorActiveTrueAndAuthorFollowersIdOrDeletedFalseAndAuthorIdAndAuthorActiveTrueOrderByPostedDesc(
-						user.getId(), user.getId());
+		List<Tweet> feed = tweetRepo
+				.findByDeletedFalseAndAuthorFollowersIdAndAuthorActiveTrueAndAuthorFollowersActiveTrueOrderByPostedDesc(
+						user.getId());
+		feed.addAll(
+				tweetRepo.findByDeletedFalseAndAuthorUsernameAndAuthorActiveTrueOrderByPostedDesc(user.getUsername()));
+
+		Collections.sort(feed, new Comparator<Tweet>() {
+			@Override
+			public int compare(Tweet t1, Tweet t2) {
+				// when I wrote this code the unix millisecond time was
+				// 1478461217792 so no tweet should ever have been created
+				// before that time so we can then safely convert to int for
+				// comparison sake. Yes if this program runs for too long it can
+				// literally break ...
+				return Math.toIntExact(t2.getPosted().getTime() - 1478461217792L)
+						- Math.toIntExact(t1.getPosted().getTime() - 1478461217792L);
+			}
+
+		});
+		return feed;
 	}
 }
