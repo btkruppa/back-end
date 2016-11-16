@@ -32,4 +32,9 @@ public class TagsController {
 	public List<Tweet> getTweetsByTag(@PathVariable String label) {
 		return tagService.getTweetsByTag('#' + label);
 	}
+
+	@GetMapping("/recents")
+	public List<Tag> getRecentTags() {
+		return tagService.getRecentTags();
+	}
 }
