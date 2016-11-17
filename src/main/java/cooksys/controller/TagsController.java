@@ -33,8 +33,8 @@ public class TagsController {
 		return tagService.getTweetsByTag('#' + label);
 	}
 
-	@GetMapping("/recents")
-	public List<Tag> getRecentTags() {
-		return tagService.getRecentTags();
+	@GetMapping("/trending")
+	public List<Tag> getTrendingTags() {
+		return tagService.getTrendingTags();
 	}
 }

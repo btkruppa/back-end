@@ -13,12 +13,14 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import cooksys.cache.entity.Popular;
 import cooksys.entity.Credentials;
 import cooksys.entity.Tag;
 import cooksys.entity.Tweet;
 import cooksys.entity.User;
 import cooksys.projections.DeletedTweetProjection;
 import cooksys.repository.CredentialRepo;
+import cooksys.repository.PopularRepo;
 import cooksys.repository.TagRepo;
 import cooksys.repository.TweetRepo;
 import cooksys.repository.UserRepo;
@@ -32,12 +34,15 @@ public class TweetService {
 	private TagRepo tagRepo;
 	private CredentialRepo credentialRepo;
 	private UserRepo userRepo;
+	private PopularRepo popularRepo;
 
-	public TweetService(TweetRepo tweetRepo, TagRepo tagRepo, CredentialRepo credentialRepo, UserRepo userRepo) {
+	public TweetService(TweetRepo tweetRepo, TagRepo tagRepo, CredentialRepo credentialRepo, UserRepo userRepo,
+			PopularRepo popularRepo) {
 		this.tweetRepo = tweetRepo;
 		this.tagRepo = tagRepo;
 		this.credentialRepo = credentialRepo;
 		this.userRepo = userRepo;
+		this.popularRepo = popularRepo;
 	}
 
 	public Tweet getTweet(Long id) throws Exception {
@@ -272,20 +277,38 @@ public class TweetService {
 
 	public List<Tweet> getPopular() {
 		Date date = new Date();
-		List<Tweet> popular = tweetRepo.findByDeletedFalseAndAuthorActiveTrueAndPostedGreaterThan(
-				new Date(date.getTime() - (7 * 24 * 3600 * 1000)));
-		Collections.sort(popular, new Comparator<Tweet>() {
-			@Override
-			public int compare(Tweet t1, Tweet t2) {
-				// when I wrote this code the unix millisecond time was
-				// 1478461217792 so no tweet should ever have been created
-				// before that time so we can then safely convert to int for
-				// comparison sake. Yes if this program runs for too long it can
-				// literally break ...
-				return Math.toIntExact(t2.getUsersLike().size()) - Math.toIntExact(t1.getUsersLike().size());
-			}
+		List<Popular> popular = popularRepo
+				.findByDayPopularGreaterThanOrderByDayPopularDesc(new Date(date.getTime() - 24 * 3600 * 1000));
+		if (popular.size() >= 1) {
+			List<Tweet> popularTweets = popular.get(0).getPopularTweets();
+			Collections.sort(popularTweets, new Comparator<Tweet>() {
+				@Override
+				public int compare(Tweet t1, Tweet t2) {
+					return Math.toIntExact(t2.getUsersLike().size()) - Math.toIntExact(t1.getUsersLike().size());
+				}
 
-		});
-		return popular;
+			});
+			return popularTweets;
+		} else {
+			Popular newPopular = new Popular();
+			List<Tweet> popularTweets = tweetRepo.findByDeletedFalseAndAuthorActiveTrueAndPostedGreaterThan(
+					new Date(date.getTime() - (7 * 24 * 3600 * 1000)));
+			Collections.sort(popularTweets, new Comparator<Tweet>() {
+				@Override
+				public int compare(Tweet t1, Tweet t2) {
+					return Math.toIntExact(t2.getUsersLike().size()) - Math.toIntExact(t1.getUsersLike().size());
+				}
+
+			});
+			if (popularTweets.size() < 20) {
+				newPopular.setPopularTweets(popularTweets.subList(0, popularTweets.size()));
+				popularRepo.saveAndFlush(newPopular);
+				return popularTweets.subList(0, popularTweets.size());
+			} else {
+				newPopular.setPopularTweets(popularTweets.subList(0, 20));
+				popularRepo.saveAndFlush(newPopular);
+				return popularTweets.subList(0, 2);
+			}
+		}
 	}
 }
