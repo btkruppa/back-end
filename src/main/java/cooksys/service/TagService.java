@@ -1,9 +1,12 @@
 package cooksys.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.transaction.Transactional;
 
@@ -71,8 +74,22 @@ public class TagService {
 		}
 	}
 
-	public List<Tweet> getTweetsByTag(String label) {
-		return tweetRepo.findByTagsLabelAndDeletedFalseOrderByPostedDesc(label);
+	public List<Tweet> getTweetsByTag(String label) throws Exception {
+		String pattern = "(#\\w+)";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(label.toLowerCase());
+		Tag tag;
+		List<Tag> tags = new ArrayList<Tag>();
+		if (m.find()) {
+			tag = tagRepo.findByLabel(m.group(0));
+			if (tag != null) {
+				return tweetRepo.findByTagsLabelAndDeletedFalseOrderByPostedDesc(m.group(0));
+			} else {
+				throw new Exception("tag has never been used");
+			}
+			
+		}
+		throw new Exception("invalid hashtag");
 	}
 
 }

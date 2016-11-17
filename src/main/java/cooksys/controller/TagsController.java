@@ -29,7 +29,7 @@ public class TagsController {
 	}
 
 	@GetMapping("/{label}")
-	public List<Tweet> getTweetsByTag(@PathVariable String label) {
+	public List<Tweet> getTweetsByTag(@PathVariable String label) throws Exception {
 		return tagService.getTweetsByTag('#' + label);
 	}
 

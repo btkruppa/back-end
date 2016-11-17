@@ -55,9 +55,12 @@ public class TweetService {
 	}
 
 	private List<Tag> extractTags(String content) {
-		String pattern = "( #)\\w+([^\\s]+)";
+		if(content == null) {
+			return new ArrayList<Tag>();
+		}
+		String pattern = " #(\\w+)";
 		Pattern r = Pattern.compile(pattern);
-		Matcher m = r.matcher(content);
+		Matcher m = r.matcher(content.toLowerCase());
 		Tag tag;
 		List<Tag> tags = new ArrayList<Tag>();
 		while (m.find()) {
@@ -75,7 +78,10 @@ public class TweetService {
 	}
 
 	private List<User> extractMentions(String content) {
-		String pattern = "( @)\\w+([^\\s]+)";
+		if(content == null) {
+			return new ArrayList<User>();
+		}
+		String pattern = " @(\\w+)";
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(content);
 		List<User> mentions = new ArrayList<User>();
