@@ -55,6 +55,9 @@ public class TweetService {
 	}
 
 	private List<Tag> extractTags(String content) {
+		if(content == null) {
+			return new ArrayList<Tag>();
+		}
 		String pattern = " #(\\w+)";
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(content.toLowerCase());
@@ -75,6 +78,9 @@ public class TweetService {
 	}
 
 	private List<User> extractMentions(String content) {
+		if(content == null) {
+			return new ArrayList<User>();
+		}
 		String pattern = " @(\\w+)";
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(content);
