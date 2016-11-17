@@ -37,7 +37,7 @@ public class TagService {
 	public List<Tag> getTrendingTags() {
 		Date date = new Date(); 
 		List<Trending> trending = trendingRepo
-				.findByDayTrendingGreaterThanOrderByDayTrendingDesc(new Date(date.getTime() - 24 * 3600 * 1000));
+				.findByDayTrendingGreaterThanOrderByDayTrendingDesc(new Date(date.getTime() - 1 * 3600 * 1000));
 		if (trending.size() >= 1) {
 			List<Tag> trendingTags = trending.get(0).getTrendingTags();
 			Collections.sort(trendingTags, new Comparator<Tag>() {

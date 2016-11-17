@@ -278,7 +278,7 @@ public class TweetService {
 	public List<Tweet> getPopular() {
 		Date date = new Date();
 		List<Popular> popular = popularRepo
-				.findByDayPopularGreaterThanOrderByDayPopularDesc(new Date(date.getTime() - 24 * 3600 * 1000));
+				.findByDayPopularGreaterThanOrderByDayPopularDesc(new Date(date.getTime() - 1 * 3600 * 1000));
 		if (popular.size() >= 1) {
 			List<Tweet> popularTweets = popular.get(0).getPopularTweets();
 			Collections.sort(popularTweets, new Comparator<Tweet>() {
